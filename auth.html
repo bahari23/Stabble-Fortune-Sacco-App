@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Register — Stable Fortunes SACCO</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Auth page overrides */
+    body { background: var(--green-deep); }
+    .auth-top-bar {
+      background: rgba(0,0,0,.2);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .auth-top-bar a { color: rgba(255,255,255,.7); font-size: 13px; }
+    .auth-top-bar a:hover { color: var(--gold-light); }
+    .form-control-auth {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--cream);
+      color: var(--text-dark);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      transition: var(--transition);
+      outline: none;
+    }
+    .form-control-auth:focus { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(45,106,79,.1); }
+    .checkbox-group { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-mid); }
+    .checkbox-group input { width: 16px; height: 16px; accent-color: var(--green-mid); }
+    .forgot-link { font-size: 13px; color: var(--green-mid); }
+    .forgot-link:hover { color: var(--green-deep); text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="auth-top-bar">
+  <a href="index.html" style="display:flex;align-items:center;gap:10px">
+    <div class="logo-icon" style="width:36px;height:36px;font-size:15px;background:var(--gold);color:var(--green-deep);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900">SF</div>
+    <span style="color:rgba(255,255,255,.85);font-family:'Playfair Display',serif;font-size:16px;font-weight:600">Stable Fortunes SACCO</span>
+  </a>
+  <div style="display:flex;gap:20px">
+    <a href="index.html">← Back to Home</a>
+    <a href="contact.html">Contact Us</a>
+  </div>
+</div>
+
+<!-- AUTH PAGE -->
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-grid">
+
+      <!-- LEFT SIDE INFO PANEL -->
+      <div class="auth-side">
+        <div style="position:relative;z-index:1">
+          <div class="tag" style="background:rgba(201,168,76,.2);color:var(--gold-light);margin-bottom:20px">Member Portal</div>
+          <h2>Welcome to Stable Fortunes</h2>
+          <p>Your gateway to financial growth, investment opportunities, and a vibrant community of business leaders &amp; professionals.</p>
+          <ul>
+            <li>Manage your savings accounts online</li>
+            <li>Apply for loans with ease</li>
+            <li>Track your deposits &amp; dividends</li>
+            <li>Connect with fellow members</li>
+            <li>Access exclusive member resources</li>
+          </ul>
+          <div style="margin-top:32px;padding:20px;background:rgba(0,0,0,.2);border-radius:var(--radius);border:1px solid rgba(201,168,76,.2)">
+            <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:6px">M-PESA Pay Bill</div>
+            <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--gold-light)">4076949</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px">A/c No: ID # Purpose</div>
+          </div>
+          <div style="margin-top:20px;font-size:13px;color:rgba(255,255,255,.45)">
+            📞 011 49 149 49 &nbsp;·&nbsp; 0725-021-709<br>
+            ✉️ info@stablefortunes.com
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT FORM PANEL -->
+      <div class="auth-form-side">
+        <!-- TABS -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+          <button class="auth-tab" id="registerTab" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="auth-form active" id="loginForm">
+          <h3 style="font-family:'Playfair Display',serif;font-size:24px;color:var(--green-deep);margin-bottom:6px">Welcome Back</h3>
+          <p style="font-size:14px;color:var(--text-light);margin-bottom:24px">Sign in to your Stable Fortunes member account.</p>
+
+          <div class="form-group">
+            <label class="form-label">Username or Email Address *</label>
+            <input type="text" class="form-control-auth" placeholder="your@email.com or username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password *</label>
+            <div style="position:relative">
+              <input type="password" class="form-control-auth" id="loginPassword" placeholder="Enter your password">
+              <button onclick="togglePwd('loginPassword')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px">👁</button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <label class="checkbox-group">
+              <input type="checkbox"> Remember me
+            </label>
+            <a href="#" class="forgot-link">Lost your password?</a>
+          </div>
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:14px;font-size:16px">
+            Log In
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          </button>
+          <div class="divider">or</div>
+          <p style="text-align:center;font-size:14px;color:var(--text-light)">
+            Don't have an account? <button onclick="switchTab('register')" style="background:none;border:none;color:var(--green-mid);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">Register here →</button>
+          </p>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div class="auth-form" id="registerForm">
+          <h3 style="font-family:'Playfair Display',serif;font-size:24px;color:var(--green-deep);margin-bottom:6px">Create an Account</h3>
+          <p style="font-size:14px;color:var(--text-light);margin-bottom:24px">Join Stable Fortunes SACCO and start building your financial future.</p>
+
+          <div class="grid-2" style="gap:14px">
+            <div class="form-group">
+              <label class="form-label">First Name *</label>
+              <input type="text" class="form-control-auth" placeholder="First name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name *</label>
+              <input type="text" class="form-control-auth" placeholder="Last name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" class="form-control-auth" placeholder="your@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" class="form-control-auth" placeholder="e.g. 0712 345 678">
+          </div>
+          <div class="form-group">
+            <label class="form-label">National ID Number *</label>
+            <input type="text" class="form-control-auth" placeholder="Your National ID">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account Type *</label>
+            <select class="form-control-auth">
+              <option value="">Select account type…</option>
+              <option>Ordinary Account</option>
+              <option>Biashara Account</option>
+              <option>Group Account</option>
+              <option>Children's Account</option>
+              <option>Investment Account</option>
+              <option>Retirement Account</option>
+              <option>Elimu Account</option>
+              <option>Holiday Account</option>
+              <option>Fixed Deposit</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password *</label>
+            <div style="position:relative">
+              <input type="password" class="form-control-auth" id="regPassword" placeholder="Create a strong password">
+              <button onclick="togglePwd('regPassword')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px">👁</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom:20px">
+            <label class="checkbox-group" style="align-items:flex-start;gap:10px">
+              <input type="checkbox" style="margin-top:3px">
+              <span>I agree to the <a href="#" style="color:var(--green-mid)">Privacy Policy</a> and <a href="#" style="color:var(--green-mid)">Terms of Service</a>. My personal data will be used to support my experience throughout this website and to manage access to my account.</span>
+            </label>
+          </div>
+
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:14px;font-size:16px">
+            Create Account
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </button>
+
+          <p style="text-align:center;font-size:13px;color:var(--text-light);margin-top:14px">
+            A link to set your password will be sent to your email address.
+          </p>
+
+          <div class="divider">already a member?</div>
+          <p style="text-align:center;font-size:14px;color:var(--text-light)">
+            <button onclick="switchTab('login')" style="background:none;border:none;color:var(--green-mid);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">← Sign in to your account</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+  document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+  document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+  document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+}
+function togglePwd(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+</script>
+
+<div id="footer-placeholder"></div>
+
+<script src="nav-footer.js"></script>
+</body>
+</html>
