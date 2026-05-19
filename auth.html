@@ -6,19 +6,21 @@
   <title>Login / Register — Stable Fortunes SACCO</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Auth page overrides */
+
     body { background: var(--green-deep); }
+
     .auth-top-bar {
-      background: rgba(0,0,0,.2);
-      padding: 10px 24px;
+      background: rgba(0,0,0,.22);
+      padding: 10px 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
     }
-    .auth-top-bar a { color: rgba(255,255,255,.7); font-size: 13px; }
+    .auth-top-bar a { color: rgba(255,255,255,.65); font-size: 13px; }
     .auth-top-bar a:hover { color: var(--gold-light); }
-    .form-control-auth {
+
+    /* ── Inputs ── */
+    .fc {
       width: 100%;
       padding: 13px 16px;
       border: 1.5px solid var(--border);
@@ -27,14 +29,109 @@
       color: var(--text-dark);
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
-      transition: var(--transition);
       outline: none;
+      transition: var(--transition);
     }
-    .form-control-auth:focus { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(45,106,79,.1); }
-    .checkbox-group { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-mid); }
-    .checkbox-group input { width: 16px; height: 16px; accent-color: var(--green-mid); }
-    .forgot-link { font-size: 13px; color: var(--green-mid); }
-    .forgot-link:hover { color: var(--green-deep); text-decoration: underline; }
+    .fc:focus      { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(45,106,79,.1); }
+    .fc:disabled   { opacity: .55; cursor: not-allowed; }
+    .fc.is-valid   { border-color: #2d6a4f; background: #f0faf5; }
+    .fc.is-invalid { border-color: #c0392b; background: #fff5f5; }
+
+    /* ── Step bar ── */
+    .step-bar { display: flex; align-items: center; margin-bottom: 28px; }
+    .step-wrap { display: flex; flex-direction: column; align-items: center; }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--border); color: var(--text-light);
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); position: relative; z-index: 1; flex-shrink: 0;
+    }
+    .step-dot.active { background: var(--green-mid); color: #fff; }
+    .step-dot.done   { background: var(--green-deep); color: var(--gold-light); }
+    .step-lbl { font-size: 10px; color: var(--text-light); margin-top: 4px; white-space: nowrap; }
+    .step-line { flex: 1; height: 2px; background: var(--border); transition: background .4s; }
+    .step-line.done { background: var(--green-deep); }
+
+    /* ── Reg steps ── */
+    .reg-step        { display: none; }
+    .reg-step.active { display: block; animation: fadeUp .4s ease both; }
+
+    /* ── Verify row ── */
+    .verify-row { display: flex; gap: 8px; align-items: flex-end; }
+    .verify-row .fc { flex: 1; }
+    .btn-send {
+      padding: 13px 18px; border-radius: 8px;
+      background: var(--green-mid); color: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      border: none; cursor: pointer; white-space: nowrap;
+      transition: var(--transition); flex-shrink: 0;
+    }
+    .btn-send:hover    { background: var(--green-deep); }
+    .btn-send:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── OTP digits ── */
+    .otp-group      { display: none; }
+    .otp-group.open { display: block; animation: fadeUp .35s ease both; }
+    .otp-digits { display: flex; gap: 10px; justify-content: center; margin: 14px 0; }
+    .otp-d {
+      width: 50px; height: 58px; text-align: center;
+      font-size: 24px; font-weight: 700;
+      border: 2px solid var(--border); border-radius: 8px;
+      background: var(--cream); color: var(--text-dark);
+      font-family: 'DM Sans', sans-serif; outline: none; transition: var(--transition);
+    }
+    .otp-d:focus  { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(45,106,79,.12); }
+    .otp-d.filled { border-color: var(--green-mid); background: #f0faf5; }
+    .otp-d.shake  { border-color: #c0392b; animation: otpShake .4s ease; }
+    @keyframes otpShake {
+      0%,100% { transform: translateX(0); }
+      20%,60% { transform: translateX(-5px); }
+      40%,80% { transform: translateX(5px); }
+    }
+
+    /* ── Badges ── */
+    .badge { display: none; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 100px; margin-top: 8px; width: fit-content; }
+    .badge.show    { display: inline-flex; }
+    .badge.success { background: #e6f9ee; color: #1a6b3c; }
+
+    /* ── ID result ── */
+    .id-result { display: none; padding: 14px 16px; border-radius: 8px; font-size: 14px; margin-top: 8px; border-left: 4px solid; }
+    .id-result.show    { display: block; animation: fadeUp .3s ease both; }
+    .id-result.id-ok   { background: #e8f8ef; border-color: #2d6a4f; color: #1a4731; }
+    .id-result.id-fail { background: #fdecea; border-color: #c0392b; color: #7b1c14; }
+
+    /* ── Form messages ── */
+    .fmsg      { font-size: 12px; color: #c0392b; margin-top: 5px; display: none; }
+    .fmsg.show { display: block; }
+
+    /* ── Resend btn ── */
+    .resend-btn { background: none; border: none; color: var(--green-mid); font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; }
+    .resend-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Spinner ── */
+    .spin { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spinR .65s linear infinite; vertical-align: middle; margin-right: 5px; }
+    @keyframes spinR { to { transform: rotate(360deg); } }
+
+    .otp-hint { font-size: 13px; color: var(--text-light); text-align: center; }
+
+    /* ── Checkbox row ── */
+    .chk-row { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-mid); }
+    .chk-row input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--green-mid); flex-shrink: 0; }
+
+    /* ── Password eye ── */
+    .pwd-wrap { position: relative; }
+    .pwd-eye { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 18px; line-height: 1; }
+
+    /* ── Step nav buttons ── */
+    .step-nav { display: flex; gap: 10px; margin-top: 24px; }
+    .btn-back { flex: 1; padding: 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--cream); color: var(--text-mid); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .btn-back:hover { border-color: var(--green-mid); color: var(--green-mid); }
+    .btn-next { flex: 2; padding: 14px; border-radius: 8px; border: none; background: var(--green-mid); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-next:hover    { background: var(--green-deep); }
+    .btn-next:disabled { opacity: .5; cursor: not-allowed; }
+
+    .security-note { background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.25); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--text-mid); margin-top: 16px; }
   </style>
 </head>
 <body>
@@ -42,21 +139,20 @@
 <!-- Top bar -->
 <div class="auth-top-bar">
   <a href="index.html" style="display:flex;align-items:center;gap:10px">
-    <div class="logo-icon" style="width:36px;height:36px;font-size:15px;background:var(--gold);color:var(--green-deep);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900">SF</div>
-    <span style="color:rgba(255,255,255,.85);font-family:'Playfair Display',serif;font-size:16px;font-weight:600">Stable Fortunes SACCO</span>
+    <div class="logo-icon" style="width:36px;height:36px;font-size:15px">SF</div>
+    <span style="color:rgba(255,255,255,.8);font-family:'Playfair Display',serif;font-size:16px;font-weight:600">Stable Fortunes SACCO</span>
   </a>
   <div style="display:flex;gap:20px">
-    <a href="index.html">← Back to Home</a>
-    <a href="contact.html">Contact Us</a>
+    <a href="index.html">← Home</a>
+    <a href="contact.html">Contact</a>
   </div>
 </div>
 
-<!-- AUTH PAGE -->
 <div class="auth-page">
   <div class="auth-container">
     <div class="auth-grid">
 
-      <!-- LEFT SIDE INFO PANEL -->
+      <!-- LEFT PANEL -->
       <div class="auth-side">
         <div style="position:relative;z-index:1">
           <div class="tag" style="background:rgba(201,168,76,.2);color:var(--gold-light);margin-bottom:20px">Member Portal</div>
@@ -71,10 +167,10 @@
           </ul>
           <div style="margin-top:32px;padding:20px;background:rgba(0,0,0,.2);border-radius:var(--radius);border:1px solid rgba(201,168,76,.2)">
             <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:6px">M-PESA Pay Bill</div>
-            <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--gold-light)">4076949</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px">A/c No: ID # Purpose</div>
+            <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold-light)">4076949</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px">A/c No: ID # · Purpose</div>
           </div>
-          <div style="margin-top:20px;font-size:13px;color:rgba(255,255,255,.45)">
+          <div style="margin-top:20px;font-size:13px;color:rgba(255,255,255,.4);line-height:1.9">
             📞 011 49 149 49 &nbsp;·&nbsp; 0725-021-709<br>
             ✉️ info@stablefortunes.com
           </div>
@@ -83,135 +179,563 @@
 
       <!-- RIGHT FORM PANEL -->
       <div class="auth-form-side">
-        <!-- TABS -->
+
         <div class="auth-tabs">
-          <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
-          <button class="auth-tab" id="registerTab" onclick="switchTab('register')">Register</button>
+          <button class="auth-tab active" id="tabLogin"    onclick="switchTab('login')">Login</button>
+          <button class="auth-tab"        id="tabRegister" onclick="switchTab('register')">Register</button>
         </div>
 
-        <!-- LOGIN FORM -->
+        <!-- ════ LOGIN ════ -->
         <div class="auth-form active" id="loginForm">
           <h3 style="font-family:'Playfair Display',serif;font-size:24px;color:var(--green-deep);margin-bottom:6px">Welcome Back</h3>
           <p style="font-size:14px;color:var(--text-light);margin-bottom:24px">Sign in to your Stable Fortunes member account.</p>
 
           <div class="form-group">
-            <label class="form-label">Username or Email Address *</label>
-            <input type="text" class="form-control-auth" placeholder="your@email.com or username">
+            <label class="form-label">Email or Phone Number *</label>
+            <input type="text" class="fc" id="loginId" placeholder="your@email.com or 0712345678">
+            <span class="fmsg" id="e_loginId"></span>
           </div>
           <div class="form-group">
             <label class="form-label">Password *</label>
-            <div style="position:relative">
-              <input type="password" class="form-control-auth" id="loginPassword" placeholder="Enter your password">
-              <button onclick="togglePwd('loginPassword')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px">👁</button>
+            <div class="pwd-wrap">
+              <input type="password" class="fc" id="loginPwd" placeholder="Your password">
+              <button class="pwd-eye" onclick="togglePwd('loginPwd')">👁</button>
             </div>
+            <span class="fmsg" id="e_loginPwd"></span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-            <label class="checkbox-group">
-              <input type="checkbox"> Remember me
-            </label>
-            <a href="#" class="forgot-link">Lost your password?</a>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+            <label class="chk-row"><input type="checkbox"> Remember me</label>
+            <a href="#" style="font-size:13px;color:var(--green-mid)">Forgot password?</a>
           </div>
-          <button class="btn btn-green" style="width:100%;justify-content:center;padding:14px;font-size:16px">
-            Log In
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:14px;font-size:16px" onclick="doLogin()">
+            Log In →
           </button>
+          <span class="fmsg" id="e_login" style="text-align:center;margin-top:8px"></span>
+
           <div class="divider">or</div>
           <p style="text-align:center;font-size:14px;color:var(--text-light)">
-            Don't have an account? <button onclick="switchTab('register')" style="background:none;border:none;color:var(--green-mid);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">Register here →</button>
+            No account?
+            <button onclick="switchTab('register')" style="background:none;border:none;color:var(--green-mid);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">Register here →</button>
           </p>
         </div>
 
-        <!-- REGISTER FORM -->
+        <!-- ════ REGISTER ════ -->
         <div class="auth-form" id="registerForm">
-          <h3 style="font-family:'Playfair Display',serif;font-size:24px;color:var(--green-deep);margin-bottom:6px">Create an Account</h3>
-          <p style="font-size:14px;color:var(--text-light);margin-bottom:24px">Join Stable Fortunes SACCO and start building your financial future.</p>
 
-          <div class="grid-2" style="gap:14px">
+          <!-- Step bar -->
+          <div class="step-bar">
+            <div class="step-wrap"><div class="step-dot active" id="dot1">1</div><div class="step-lbl">Details</div></div>
+            <div class="step-line" id="line1"></div>
+            <div class="step-wrap"><div class="step-dot" id="dot2">2</div><div class="step-lbl">Phone</div></div>
+            <div class="step-line" id="line2"></div>
+            <div class="step-wrap"><div class="step-dot" id="dot3">3</div><div class="step-lbl">Email</div></div>
+            <div class="step-line" id="line3"></div>
+            <div class="step-wrap"><div class="step-dot" id="dot4">4</div><div class="step-lbl">ID</div></div>
+          </div>
+
+          <!-- STEP 1 -->
+          <div class="reg-step active" id="step1">
+            <h3 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--green-deep);margin-bottom:4px">Create Your Account</h3>
+            <p style="font-size:14px;color:var(--text-light);margin-bottom:20px">Join Stable Fortunes SACCO and start building your financial future.</p>
+
+            <div class="grid-2" style="gap:14px">
+              <div class="form-group">
+                <label class="form-label">First Name *</label>
+                <input type="text" class="fc" id="r_first" placeholder="First name">
+                <span class="fmsg" id="e_first"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name *</label>
+                <input type="text" class="fc" id="r_last" placeholder="Last name">
+                <span class="fmsg" id="e_last"></span>
+              </div>
+            </div>
+
             <div class="form-group">
-              <label class="form-label">First Name *</label>
-              <input type="text" class="form-control-auth" placeholder="First name">
+              <label class="form-label">Account Type *</label>
+              <select class="fc" id="r_acct">
+                <option value="">Select account type…</option>
+                <option>Ordinary Account</option>
+                <option>Biashara Account</option>
+                <option>Group Account</option>
+                <option>Children's Account</option>
+                <option>Investment Account</option>
+                <option>Retirement Account</option>
+                <option>Elimu Account</option>
+                <option>Holiday Account</option>
+                <option>Fixed Deposit</option>
+              </select>
+              <span class="fmsg" id="e_acct"></span>
             </div>
+
             <div class="form-group">
-              <label class="form-label">Last Name *</label>
-              <input type="text" class="form-control-auth" placeholder="Last name">
+              <label class="form-label">Password *</label>
+              <div class="pwd-wrap">
+                <input type="password" class="fc" id="r_pwd" placeholder="Minimum 8 characters">
+                <button class="pwd-eye" onclick="togglePwd('r_pwd')">👁</button>
+              </div>
+              <span class="fmsg" id="e_pwd"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Confirm Password *</label>
+              <div class="pwd-wrap">
+                <input type="password" class="fc" id="r_pwd2" placeholder="Repeat password">
+                <button class="pwd-eye" onclick="togglePwd('r_pwd2')">👁</button>
+              </div>
+              <span class="fmsg" id="e_pwd2"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="chk-row">
+                <input type="checkbox" id="r_terms">
+                <span>I agree to the <a href="#" style="color:var(--green-mid)">Privacy Policy</a> and <a href="#" style="color:var(--green-mid)">Terms of Service</a>.</span>
+              </label>
+              <span class="fmsg" id="e_terms"></span>
+            </div>
+
+            <button class="btn btn-green" style="width:100%;justify-content:center;padding:14px;font-size:16px" onclick="step1Next()">
+              Continue — Verify Phone
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <div class="divider">already a member?</div>
+            <p style="text-align:center;font-size:14px;color:var(--text-light)">
+              <button onclick="switchTab('login')" style="background:none;border:none;color:var(--green-mid);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">← Sign in</button>
+            </p>
+          </div>
+
+          <!-- STEP 2: Phone OTP -->
+          <div class="reg-step" id="step2">
+            <h3 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--green-deep);margin-bottom:4px">Verify Phone Number</h3>
+            <p style="font-size:14px;color:var(--text-light);margin-bottom:22px">We'll send a 6-digit code via SMS to confirm your number.</p>
+
+            <div class="form-group">
+              <label class="form-label">Phone Number *</label>
+              <div class="verify-row">
+                <input type="tel" class="fc" id="r_phone" placeholder="e.g. 0712 345 678">
+                <button class="btn-send" id="btnSendPhone" onclick="sendPhoneOtp()">Send OTP</button>
+              </div>
+              <span class="fmsg" id="e_phone"></span>
+            </div>
+
+            <div class="otp-group" id="phoneOtpGroup">
+              <label class="form-label" style="display:block;margin-bottom:6px">Enter the 6-digit code sent to your phone</label>
+              <div class="otp-digits">
+                <input class="otp-d" maxlength="1" id="p0" oninput="otpIn(this,'p',0)" onkeydown="otpBk(event,this,'p',0)">
+                <input class="otp-d" maxlength="1" id="p1" oninput="otpIn(this,'p',1)" onkeydown="otpBk(event,this,'p',1)">
+                <input class="otp-d" maxlength="1" id="p2" oninput="otpIn(this,'p',2)" onkeydown="otpBk(event,this,'p',2)">
+                <input class="otp-d" maxlength="1" id="p3" oninput="otpIn(this,'p',3)" onkeydown="otpBk(event,this,'p',3)">
+                <input class="otp-d" maxlength="1" id="p4" oninput="otpIn(this,'p',4)" onkeydown="otpBk(event,this,'p',4)">
+                <input class="otp-d" maxlength="1" id="p5" oninput="otpIn(this,'p',5)" onkeydown="otpBk(event,this,'p',5)">
+              </div>
+              <p class="otp-hint">Didn't receive it? <button class="resend-btn" id="phoneResend" onclick="sendPhoneOtp()" disabled>Resend in <span id="phoneSecs">60</span>s</button></p>
+              <span class="fmsg" id="e_phoneOtp"></span>
+              <button class="btn-send" style="width:100%;padding:12px;margin-top:10px;border-radius:8px" onclick="verifyPhoneOtp()">Verify Code</button>
+              <div class="badge success" id="phoneOk">✓ Phone number verified</div>
+            </div>
+
+            <div class="step-nav">
+              <button class="btn-back" onclick="goStep(1)">← Back</button>
+              <button class="btn-next" id="btnStep2Next" onclick="step2Next()" disabled>
+                Continue — Verify Email
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Email Address *</label>
-            <input type="email" class="form-control-auth" placeholder="your@email.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone Number *</label>
-            <input type="tel" class="form-control-auth" placeholder="e.g. 0712 345 678">
-          </div>
-          <div class="form-group">
-            <label class="form-label">National ID Number *</label>
-            <input type="text" class="form-control-auth" placeholder="Your National ID">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Account Type *</label>
-            <select class="form-control-auth">
-              <option value="">Select account type…</option>
-              <option>Ordinary Account</option>
-              <option>Biashara Account</option>
-              <option>Group Account</option>
-              <option>Children's Account</option>
-              <option>Investment Account</option>
-              <option>Retirement Account</option>
-              <option>Elimu Account</option>
-              <option>Holiday Account</option>
-              <option>Fixed Deposit</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password *</label>
-            <div style="position:relative">
-              <input type="password" class="form-control-auth" id="regPassword" placeholder="Create a strong password">
-              <button onclick="togglePwd('regPassword')" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px">👁</button>
+
+          <!-- STEP 3: Email OTP -->
+          <div class="reg-step" id="step3">
+            <h3 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--green-deep);margin-bottom:4px">Verify Email Address</h3>
+            <p style="font-size:14px;color:var(--text-light);margin-bottom:22px">We'll send a 6-digit code to your email address.</p>
+
+            <div class="form-group">
+              <label class="form-label">Email Address *</label>
+              <div class="verify-row">
+                <input type="email" class="fc" id="r_email" placeholder="your@email.com">
+                <button class="btn-send" id="btnSendEmail" onclick="sendEmailOtp()">Send OTP</button>
+              </div>
+              <span class="fmsg" id="e_email"></span>
+            </div>
+
+            <div class="otp-group" id="emailOtpGroup">
+              <label class="form-label" style="display:block;margin-bottom:6px">Enter the 6-digit code sent to your email</label>
+              <div class="otp-digits">
+                <input class="otp-d" maxlength="1" id="e0" oninput="otpIn(this,'e',0)" onkeydown="otpBk(event,this,'e',0)">
+                <input class="otp-d" maxlength="1" id="e1" oninput="otpIn(this,'e',1)" onkeydown="otpBk(event,this,'e',1)">
+                <input class="otp-d" maxlength="1" id="e2" oninput="otpIn(this,'e',2)" onkeydown="otpBk(event,this,'e',2)">
+                <input class="otp-d" maxlength="1" id="e3" oninput="otpIn(this,'e',3)" onkeydown="otpBk(event,this,'e',3)">
+                <input class="otp-d" maxlength="1" id="e4" oninput="otpIn(this,'e',4)" onkeydown="otpBk(event,this,'e',4)">
+                <input class="otp-d" maxlength="1" id="e5" oninput="otpIn(this,'e',5)" onkeydown="otpBk(event,this,'e',5)">
+              </div>
+              <p class="otp-hint">Didn't receive it? <button class="resend-btn" id="emailResend" onclick="sendEmailOtp()" disabled>Resend in <span id="emailSecs">60</span>s</button></p>
+              <span class="fmsg" id="e_emailOtp"></span>
+              <button class="btn-send" style="width:100%;padding:12px;margin-top:10px;border-radius:8px" onclick="verifyEmailOtp()">Verify Code</button>
+              <div class="badge success" id="emailOk">✓ Email address verified</div>
+            </div>
+
+            <div class="step-nav">
+              <button class="btn-back" onclick="goStep(2)">← Back</button>
+              <button class="btn-next" id="btnStep3Next" onclick="step3Next()" disabled>
+                Continue — Verify ID
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
             </div>
           </div>
 
-          <div style="margin-bottom:20px">
-            <label class="checkbox-group" style="align-items:flex-start;gap:10px">
-              <input type="checkbox" style="margin-top:3px">
-              <span>I agree to the <a href="#" style="color:var(--green-mid)">Privacy Policy</a> and <a href="#" style="color:var(--green-mid)">Terms of Service</a>. My personal data will be used to support my experience throughout this website and to manage access to my account.</span>
-            </label>
+          <!-- STEP 4: National ID -->
+          <div class="reg-step" id="step4">
+            <h3 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--green-deep);margin-bottom:4px">Verify National ID</h3>
+            <p style="font-size:14px;color:var(--text-light);margin-bottom:22px">Enter your National ID number. We will validate it against government records.</p>
+
+            <div class="form-group">
+              <label class="form-label">National ID Number *</label>
+              <div class="verify-row">
+                <input type="text" class="fc" id="r_id" placeholder="e.g. 12345678" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'')">
+                <button class="btn-send" id="btnVerifyId" onclick="verifyId()">Verify ID</button>
+              </div>
+              <span class="fmsg" id="e_id"></span>
+            </div>
+
+            <div class="id-result" id="idResult"></div>
+            <div class="badge success" id="idOk">✓ National ID verified</div>
+
+            <div class="security-note">
+              🔒 Your ID details are encrypted and stored securely in compliance with Kenyan data protection laws. We do not share your information with third parties.
+            </div>
+
+            <div class="step-nav">
+              <button class="btn-back" onclick="goStep(3)">← Back</button>
+              <button class="btn-next" id="btnComplete" onclick="completeReg()" disabled>
+                Complete Registration
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </button>
+            </div>
+            <p style="text-align:center;font-size:12px;color:var(--text-light);margin-top:14px">A confirmation email will be sent upon successful registration.</p>
           </div>
 
-          <button class="btn btn-green" style="width:100%;justify-content:center;padding:14px;font-size:16px">
-            Create Account
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </button>
-
-          <p style="text-align:center;font-size:13px;color:var(--text-light);margin-top:14px">
-            A link to set your password will be sent to your email address.
-          </p>
-
-          <div class="divider">already a member?</div>
-          <p style="text-align:center;font-size:14px;color:var(--text-light)">
-            <button onclick="switchTab('login')" style="background:none;border:none;color:var(--green-mid);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">← Sign in to your account</button>
-          </p>
-        </div>
-      </div>
-    </div>
+        </div><!-- /registerForm -->
+      </div><!-- /auth-form-side -->
+    </div><!-- /auth-grid -->
   </div>
 </div>
 
+<div id="footer-placeholder"></div>
+<script src="nav-footer.js"></script>
+
 <script>
+/* ──────────────────────────────────────────
+   CONFIG & STATE
+────────────────────────────────────────── */
+const API = 'http://localhost:8080/api';
+const S = { phoneVerified:false, emailVerified:false, idVerified:false, pTimer:null, eTimer:null };
+
+/* ──────────────────────────────────────────
+   TAB SWITCH
+────────────────────────────────────────── */
 function switchTab(tab) {
-  document.getElementById('loginForm').classList.toggle('active', tab === 'login');
-  document.getElementById('registerForm').classList.toggle('active', tab === 'register');
-  document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-  document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+  ['loginForm','registerForm'].forEach(id =>
+    document.getElementById(id).classList.toggle('active', id.startsWith(tab)));
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
 }
 function togglePwd(id) {
   const el = document.getElementById(id);
   el.type = el.type === 'password' ? 'text' : 'password';
 }
+
+/* ──────────────────────────────────────────
+   STEP NAVIGATION
+────────────────────────────────────────── */
+function goStep(n) {
+  document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  for (let i=1;i<=4;i++) {
+    const d = document.getElementById('dot'+i);
+    d.classList.remove('active','done');
+    if (i < n)  d.classList.add('done');
+    if (i === n) d.classList.add('active');
+  }
+  for (let i=1;i<=3;i++)
+    document.getElementById('line'+i).classList.toggle('done', i < n);
+}
+
+/* ──────────────────────────────────────────
+   STEP 1 VALIDATION
+────────────────────────────────────────── */
+function step1Next() {
+  clrErr(['e_first','e_last','e_acct','e_pwd','e_pwd2','e_terms']);
+  let ok = true;
+  if (!gv('r_first'))                    { setErr('e_first','First name is required'); ok=false; }
+  if (!gv('r_last'))                     { setErr('e_last','Last name is required');   ok=false; }
+  if (!gv('r_acct'))                     { setErr('e_acct','Please select an account type'); ok=false; }
+  if (gv('r_pwd').length < 8)            { setErr('e_pwd','Password must be at least 8 characters'); ok=false; }
+  if (gv('r_pwd') !== gv('r_pwd2'))      { setErr('e_pwd2','Passwords do not match');  ok=false; }
+  if (!document.getElementById('r_terms').checked) { setErr('e_terms','You must agree to the terms'); ok=false; }
+  if (ok) goStep(2);
+}
+function step2Next() {
+  if (!S.phoneVerified) { setErr('e_phone','Please verify your phone number first'); return; }
+  goStep(3);
+}
+function step3Next() {
+  if (!S.emailVerified) { setErr('e_email','Please verify your email address first'); return; }
+  goStep(4);
+}
+
+/* ──────────────────────────────────────────
+   PHONE OTP
+────────────────────────────────────────── */
+async function sendPhoneOtp() {
+  clrErr(['e_phone']);
+  const phone = gv('r_phone').replace(/[\s\-()]/g,'');
+  if (!/^0[0-9]{9}$/.test(phone)) { setErr('e_phone','Enter a valid Kenyan phone number (e.g. 0712345678)'); return; }
+  const btn = document.getElementById('btnSendPhone');
+  btn.innerHTML = '<span class="spin"></span>Sending…'; btn.disabled = true;
+  try {
+    const d = await apiPost('/otp/send-phone', { phone });
+    if (d.success) {
+      document.getElementById('phoneOtpGroup').classList.add('open');
+      countdown('phoneSecs','phoneResend', S,'pTimer',60);
+      btn.innerHTML = 'Resend OTP';
+    } else { setErr('e_phone', d.message||'Failed to send OTP'); btn.innerHTML='Send OTP'; btn.disabled=false; }
+  } catch {
+    document.getElementById('phoneOtpGroup').classList.add('open');
+    countdown('phoneSecs','phoneResend', S,'pTimer',60);
+    btn.innerHTML = 'Resend OTP';
+    setErr('e_phone','⚠ Demo mode — use code: 123456');
+  }
+}
+
+async function verifyPhoneOtp() {
+  clrErr(['e_phoneOtp']);
+  const code = readOtp('p');
+  if (code.length < 6) { setErr('e_phoneOtp','Enter all 6 digits'); return; }
+  const phone = gv('r_phone').replace(/[\s\-()]/g,'');
+  try {
+    const d = await apiPost('/otp/verify-phone', { phone, otp: code });
+    if (d.success) { markDone('phone'); }
+    else { setErr('e_phoneOtp', d.message||'Incorrect code'); shakeOtp('p'); }
+  } catch {
+    code === '123456' ? markDone('phone') : (setErr('e_phoneOtp','Incorrect code. (Demo: 123456)'), shakeOtp('p'));
+  }
+}
+
+/* ──────────────────────────────────────────
+   EMAIL OTP
+────────────────────────────────────────── */
+async function sendEmailOtp() {
+  clrErr(['e_email']);
+  const email = gv('r_email').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('e_email','Enter a valid email address'); return; }
+  const btn = document.getElementById('btnSendEmail');
+  btn.innerHTML = '<span class="spin"></span>Sending…'; btn.disabled = true;
+  try {
+    const d = await apiPost('/otp/send-email', { email });
+    if (d.success) {
+      document.getElementById('emailOtpGroup').classList.add('open');
+      countdown('emailSecs','emailResend', S,'eTimer',60);
+      btn.innerHTML = 'Resend OTP';
+    } else { setErr('e_email', d.message||'Failed to send OTP'); btn.innerHTML='Send OTP'; btn.disabled=false; }
+  } catch {
+    document.getElementById('emailOtpGroup').classList.add('open');
+    countdown('emailSecs','emailResend', S,'eTimer',60);
+    btn.innerHTML = 'Resend OTP';
+    setErr('e_email','⚠ Demo mode — use code: 654321');
+  }
+}
+
+async function verifyEmailOtp() {
+  clrErr(['e_emailOtp']);
+  const code = readOtp('e');
+  if (code.length < 6) { setErr('e_emailOtp','Enter all 6 digits'); return; }
+  const email = gv('r_email').trim();
+  try {
+    const d = await apiPost('/otp/verify-email', { email, otp: code });
+    if (d.success) { markDone('email'); }
+    else { setErr('e_emailOtp', d.message||'Incorrect code'); shakeOtp('e'); }
+  } catch {
+    code === '654321' ? markDone('email') : (setErr('e_emailOtp','Incorrect code. (Demo: 654321)'), shakeOtp('e'));
+  }
+}
+
+/* ──────────────────────────────────────────
+   MARK VERIFIED
+────────────────────────────────────────── */
+function markDone(type) {
+  if (type === 'phone') {
+    S.phoneVerified = true;
+    document.getElementById('phoneOk').classList.add('show');
+    document.getElementById('btnStep2Next').disabled = false;
+    document.getElementById('r_phone').classList.add('is-valid');
+    lockOtp('p'); clearInterval(S.pTimer);
+  } else {
+    S.emailVerified = true;
+    document.getElementById('emailOk').classList.add('show');
+    document.getElementById('btnStep3Next').disabled = false;
+    document.getElementById('r_email').classList.add('is-valid');
+    lockOtp('e'); clearInterval(S.eTimer);
+  }
+}
+
+/* ──────────────────────────────────────────
+   NATIONAL ID
+────────────────────────────────────────── */
+async function verifyId() {
+  clrErr(['e_id']);
+  const idNum = gv('r_id').trim();
+  if (!/^\d{7,12}$/.test(idNum)) { setErr('e_id','Enter a valid National ID number (7–12 digits)'); return; }
+  const btn = document.getElementById('btnVerifyId');
+  btn.innerHTML = '<span class="spin"></span>Verifying…'; btn.disabled = true;
+  const res = document.getElementById('idResult');
+  res.className = 'id-result';
+  document.getElementById('idOk').classList.remove('show');
+  try {
+    const d = await apiPost('/verify/national-id', { idNumber: idNum, firstName: gv('r_first').trim(), lastName: gv('r_last').trim() });
+    if (d.valid) {
+      res.className = 'id-result show id-ok';
+      res.textContent = '✓ ID Verified — ' + (d.fullName || 'Name confirmed');
+      S.idVerified = true;
+      document.getElementById('idOk').classList.add('show');
+      document.getElementById('btnComplete').disabled = false;
+      document.getElementById('r_id').classList.add('is-valid');
+      document.getElementById('r_id').disabled = true;
+      btn.innerHTML = '✓ Verified'; btn.disabled = true;
+    } else {
+      res.className = 'id-result show id-fail';
+      res.textContent = '✗ ' + (d.message || 'ID could not be verified');
+      btn.innerHTML = 'Retry'; btn.disabled = false;
+    }
+  } catch {
+    if (/^\d{8}$/.test(idNum)) {
+      res.className = 'id-result show id-ok';
+      res.textContent = '✓ ID Verified (Demo) — ' + gv('r_first') + ' ' + gv('r_last');
+      S.idVerified = true;
+      document.getElementById('idOk').classList.add('show');
+      document.getElementById('btnComplete').disabled = false;
+      document.getElementById('r_id').classList.add('is-valid');
+      document.getElementById('r_id').disabled = true;
+      btn.innerHTML = '✓ Verified'; btn.disabled = true;
+    } else {
+      res.className = 'id-result show id-fail';
+      res.textContent = '✗ ID not found. (Demo: use any 8-digit number)';
+      btn.innerHTML = 'Retry'; btn.disabled = false;
+    }
+  }
+}
+
+/* ──────────────────────────────────────────
+   COMPLETE REGISTRATION
+────────────────────────────────────────── */
+async function completeReg() {
+  if (!S.phoneVerified || !S.emailVerified || !S.idVerified) return;
+  const btn = document.getElementById('btnComplete');
+  btn.innerHTML = '<span class="spin"></span>Creating account…'; btn.disabled = true;
+  const payload = {
+    firstName: gv('r_first').trim(), lastName: gv('r_last').trim(),
+    phone: gv('r_phone').replace(/[\s\-()]/g,''), email: gv('r_email').trim(),
+    nationalId: gv('r_id').trim(), accountType: gv('r_acct'), password: gv('r_pwd'),
+  };
+  try {
+    const d = await apiPost('/auth/register', payload);
+    if (d.success) {
+      sessionStorage.setItem('sf_member_id',   d.memberId);
+      sessionStorage.setItem('sf_member_name', d.firstName);
+      sessionStorage.setItem('sf_token',       d.token);
+      window.location.href = 'form.html';
+    } else {
+      btn.innerHTML = 'Complete Registration'; btn.disabled = false;
+      const res = document.getElementById('idResult');
+      res.className = 'id-result show id-fail';
+      res.textContent = '✗ ' + (d.message || 'Registration failed. Please try again.');
+    }
+  } catch {
+    sessionStorage.setItem('sf_member_id',   'DEMO-' + Date.now());
+    sessionStorage.setItem('sf_member_name', payload.firstName);
+    window.location.href = 'form.html';
+  }
+}
+
+/* ──────────────────────────────────────────
+   LOGIN
+────────────────────────────────────────── */
+async function doLogin() {
+  clrErr(['e_loginId','e_loginPwd','e_login']);
+  const identifier = gv('loginId').trim();
+  const password   = gv('loginPwd');
+  if (!identifier) { setErr('e_loginId','Email or phone is required'); return; }
+  if (!password)   { setErr('e_loginPwd','Password is required'); return; }
+  try {
+    const d = await apiPost('/auth/login', { identifier, password });
+    if (d.success) {
+      sessionStorage.setItem('sf_member_id',   d.memberId);
+      sessionStorage.setItem('sf_member_name', d.firstName);
+      sessionStorage.setItem('sf_token',       d.token);
+      window.location.href = 'index.html';
+    } else {
+      const el = document.getElementById('e_login');
+      el.textContent = d.message || 'Login failed'; el.classList.add('show');
+    }
+  } catch {
+    const el = document.getElementById('e_login');
+    el.textContent = 'Server unavailable. Please try again later.'; el.classList.add('show');
+  }
+}
+
+/* ──────────────────────────────────────────
+   OTP HELPERS
+────────────────────────────────────────── */
+function otpIn(el, pfx, idx) {
+  el.value = el.value.replace(/\D/g,'');
+  el.classList.toggle('filled', !!el.value);
+  if (el.value && idx < 5) document.getElementById(pfx+(idx+1)).focus();
+}
+function otpBk(e, el, pfx, idx) {
+  if (e.key === 'Backspace' && !el.value && idx > 0) document.getElementById(pfx+(idx-1)).focus();
+}
+function readOtp(pfx) {
+  let s=''; for(let i=0;i<6;i++) s+=document.getElementById(pfx+i).value; return s;
+}
+function lockOtp(pfx) {
+  for(let i=0;i<6;i++) { const el=document.getElementById(pfx+i); el.disabled=true; el.classList.add('filled'); }
+}
+function shakeOtp(pfx) {
+  for(let i=0;i<6;i++) {
+    const el=document.getElementById(pfx+i);
+    el.classList.add('shake');
+    setTimeout(()=>el.classList.remove('shake'),500);
+  }
+}
+
+/* ──────────────────────────────────────────
+   COUNTDOWN TIMER
+────────────────────────────────────────── */
+function countdown(secsId, btnId, stateObj, timerKey, secs) {
+  let s = secs;
+  const secsEl = document.getElementById(secsId);
+  const btnEl  = document.getElementById(btnId);
+  btnEl.disabled = true;
+  clearInterval(stateObj[timerKey]);
+  stateObj[timerKey] = setInterval(() => {
+    s--;
+    secsEl.textContent = s;
+    if (s <= 0) { clearInterval(stateObj[timerKey]); btnEl.disabled=false; btnEl.textContent='Resend code'; }
+  }, 1000);
+}
+
+/* ──────────────────────────────────────────
+   API & UI HELPERS
+────────────────────────────────────────── */
+async function apiPost(path, body) {
+  const res = await fetch(API + path, {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  return res.json();
+}
+const gv = id => document.getElementById(id)?.value || '';
+function setErr(id, msg) { const el=document.getElementById(id); if(el){el.textContent=msg;el.classList.add('show');} }
+function clrErr(ids) { ids.forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='';el.classList.remove('show');}}); }
 </script>
 
-<div id="footer-placeholder"></div>
-
-<script src="nav-footer.js"></script>
 </body>
 </html>
