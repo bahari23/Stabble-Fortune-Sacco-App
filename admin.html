@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Stable Fortunes SACCO</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --sb: 265px;
+      --tb: 66px;
+      --dark: #0a1f13;
+      --dark2: #0d2b1e;
+      --accent: #c9a84c;
+      --accent2: #e8c97e;
+      --red: #e74c3c;
+      --blue: #2980b9;
+      --purple: #8e44ad;
+      --teal: #16a085;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #eef2ee; color: var(--text-dark); overflow-x: hidden; line-height: 1.6; }
+
+    /* ════════════════ SIDEBAR ════════════════ */
+    .sb {
+      position: fixed; left: 0; top: 0; bottom: 0;
+      width: var(--sb); background: var(--dark2);
+      display: flex; flex-direction: column;
+      z-index: 300; transition: transform .3s ease;
+      overflow-y: auto;
+    }
+    .sb-logo {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid rgba(201,168,76,.12);
+      flex-shrink: 0;
+    }
+    .sb-logo-row { display: flex; align-items: center; gap: 11px; }
+    .sb-logo-ico {
+      width: 40px; height: 40px; border-radius: 9px;
+      background: var(--accent); color: var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif; font-weight: 900; font-size: 16px;
+      flex-shrink: 0;
+    }
+    .sb-logo-txt strong { font-family: 'Playfair Display', serif; font-size: 14px; color: #fff; display: block; line-height: 1.2; }
+    .sb-logo-txt span   { font-size: 11px; color: rgba(255,255,255,.3); }
+    .admin-pill {
+      margin-top: 8px; display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(201,168,76,.15); color: var(--accent);
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      padding: 3px 10px; border-radius: 100px;
+      border: 1px solid rgba(201,168,76,.25);
+    }
+
+    .sb-nav { padding: 10px 10px; flex: 1; }
+    .sb-grp { font-size: 9.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.22); padding: 14px 12px 5px; }
+    .sb-lnk {
+      display: flex; align-items: center; gap: 11px;
+      padding: 10px 12px; border-radius: 8px;
+      color: rgba(255,255,255,.58); font-size: 13.5px; font-weight: 500;
+      cursor: pointer; transition: all .2s ease; margin-bottom: 1px;
+      text-decoration: none; user-select: none;
+    }
+    .sb-lnk:hover  { background: rgba(255,255,255,.07); color: #fff; }
+    .sb-lnk.on     { background: rgba(201,168,76,.14); color: var(--accent); font-weight: 600; }
+    .sb-lnk .ico   { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
+    .sb-lnk .cnt   { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 100px; }
+    .sb-lnk .cnt.g { background: var(--accent); color: var(--dark); }
+
+    .sb-foot { padding: 14px 10px; border-top: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
+    .sb-user { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,.05); cursor: pointer; }
+    .sb-av { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,var(--accent),var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display',serif; font-size: 13px; font-weight: 700; color: var(--dark); flex-shrink: 0; }
+    .sb-user-info strong { font-size: 13px; color: #fff; display: block; }
+    .sb-user-info span   { font-size: 11px; color: rgba(255,255,255,.35); }
+
+    /* ════════════════ MAIN ════════════════ */
+    .main { margin-left: var(--sb); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ════════════════ TOP BAR ════════════════ */
+    .topbar {
+      height: var(--tb); background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 26px; position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 1px 6px rgba(26,71,49,.06);
+    }
+    .tb-left { display: flex; align-items: center; gap: 12px; }
+    .tb-page h1 { font-family: 'Playfair Display', serif; font-size: 19px; color: var(--green-deep); line-height: 1.2; }
+    .tb-page p  { font-size: 12px; color: var(--text-light); }
+    .mob-btn { display: none; background: none; border: none; font-size: 22px; cursor: pointer; padding: 6px; }
+    .tb-right { display: flex; align-items: center; gap: 10px; }
+    .tb-badge { background: rgba(201,168,76,.12); color: #92650a; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 100px; border: 1px solid rgba(201,168,76,.25); }
+    .tb-ico-btn { width: 38px; height: 38px; border-radius: 8px; background: var(--cream); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; font-size: 17px; transition: .2s; }
+    .tb-ico-btn:hover { background: var(--border); }
+    .nb { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); border: 2px solid #fff; }
+    .tb-av { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,var(--dark2),var(--green-deep)); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display',serif; font-weight: 700; font-size: 14px; color: var(--accent); cursor: pointer; border: 2px solid var(--border); }
+
+    /* ════════════════ CONTENT ════════════════ */
+    .content { padding: 24px; flex: 1; }
+    .sec { display: none; }
+    .sec.on { display: block; animation: fadeUp .35s ease both; }
+
+    /* ════════════════ KPI CARDS ════════════════ */
+    .kpi-row { display: grid; gap: 14px; margin-bottom: 20px; }
+    .kpi-row.c4 { grid-template-columns: repeat(4,1fr); }
+    .kpi-row.c3 { grid-template-columns: repeat(3,1fr); }
+    .kpi-row.c6 { grid-template-columns: repeat(6,1fr); }
+    .kpi {
+      background: #fff; border-radius: var(--radius);
+      padding: 18px 20px; border: 1px solid var(--border);
+      position: relative; overflow: hidden; transition: .25s;
+    }
+    .kpi:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 3px 3px 0 0; }
+    .kpi.c-green::before  { background: var(--green-mid); }
+    .kpi.c-gold::before   { background: var(--accent); }
+    .kpi.c-red::before    { background: var(--red); }
+    .kpi.c-blue::before   { background: var(--blue); }
+    .kpi.c-purple::before { background: var(--purple); }
+    .kpi.c-teal::before   { background: var(--teal); }
+    .kpi-ico { position: absolute; right: 16px; top: 16px; font-size: 26px; opacity: .1; }
+    .kpi-lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-light); margin-bottom: 7px; }
+    .kpi-val { font-family: 'Playfair Display',serif; font-size: 24px; font-weight: 700; color: var(--green-deep); line-height: 1; }
+    .kpi-sub { font-size: 12px; color: var(--text-light); margin-top: 5px; }
+    .kpi-chg { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 100px; margin-top: 6px; }
+    .kpi-chg.up   { background: #e8f9ee; color: #1a6b3c; }
+    .kpi-chg.dn   { background: #fdecea; color: #c0392b; }
+    .kpi-chg.neu  { background: #f0f4ff; color: #3b5cf6; }
+
+    /* ════════════════ PANEL / TABLE ════════════════ */
+    .panel { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .panel-hdr { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .panel-title { font-size: 15px; font-weight: 700; color: var(--green-deep); }
+    .panel-sub   { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .panel-body  { padding: 20px; }
+    .panel-foot  { padding: 11px 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-light); display: flex; align-items: center; justify-content: space-between; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 11px 14px; text-align: left; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-light); background: var(--cream); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid rgba(214,232,222,.45); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(45,106,79,.03); }
+    tbody td { padding: 12px 14px; font-size: 13.5px; color: var(--text-mid); vertical-align: middle; }
+    tbody td strong { color: var(--text-dark); }
+
+    /* ════════════════ PILLS ════════════════ */
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 100px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .pill.active   { background: #e6f9ee; color: #1a6b3c; }
+    .pill.pending  { background: #fff8e6; color: #b07d00; }
+    .pill.overdue  { background: #fdecea; color: #c0392b; }
+    .pill.settled  { background: #eef2ff; color: #3b5cf6; }
+    .pill.rejected { background: #fdecea; color: #c0392b; }
+    .pill.approved { background: #e6f9ee; color: #1a6b3c; }
+    .pill.suspended{ background: #f3e8ff; color: #7e22ce; }
+    .pill.credit   { background: #e6f9ee; color: #1a6b3c; }
+    .pill.debit    { background: #fdecea; color: #c0392b; }
+    .pill.matured  { background: #eef2ff; color: #3b5cf6; }
+
+    /* ════════════════ FORM CONTROLS ════════════════ */
+    .fc {
+      width: 100%; padding: 10px 13px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      background: var(--cream); color: var(--text-dark);
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      outline: none; transition: .2s;
+    }
+    .fc:focus { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(45,106,79,.08); }
+    .fc:disabled { opacity: .6; cursor: not-allowed; }
+    .fl { display: block; font-size: 12.5px; font-weight: 600; color: var(--text-mid); margin-bottom: 5px; }
+    .fg { margin-bottom: 14px; }
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+
+    /* ════════════════ ACTION BUTTONS ════════════════ */
+    .btn-apr { padding: 6px 14px; border-radius: 6px; background: #e6f9ee; color: #1a6b3c; border: 1px solid #b7e4c7; font-size: 12px; font-weight: 700; cursor: pointer; transition: .2s; white-space: nowrap; }
+    .btn-apr:hover { background: #1a6b3c; color: #fff; }
+    .btn-rej { padding: 6px 14px; border-radius: 6px; background: #fdecea; color: #c0392b; border: 1px solid #f5c6c2; font-size: 12px; font-weight: 700; cursor: pointer; transition: .2s; white-space: nowrap; }
+    .btn-rej:hover { background: #c0392b; color: #fff; }
+    .btn-view { padding: 6px 14px; border-radius: 6px; background: var(--cream); color: var(--text-mid); border: 1px solid var(--border); font-size: 12px; font-weight: 700; cursor: pointer; transition: .2s; white-space: nowrap; }
+    .btn-view:hover { border-color: var(--green-mid); color: var(--green-mid); }
+    .btn-sus  { padding: 6px 14px; border-radius: 6px; background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; font-size: 12px; font-weight: 700; cursor: pointer; transition: .2s; white-space: nowrap; }
+    .btn-sus:hover  { background: #7e22ce; color: #fff; }
+
+    /* ════════════════ SEARCH & FILTER BAR ════════════════ */
+    .search-bar {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--cream); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 12px;
+    }
+    .search-bar input { border: none; background: none; outline: none; font-family: 'DM Sans',sans-serif; font-size: 13px; color: var(--text-dark); min-width: 160px; }
+    .sel { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-family: 'DM Sans',sans-serif; font-size: 13px; color: var(--text-mid); outline: none; cursor: pointer; }
+
+    /* ════════════════ MINI BAR CHART ════════════════ */
+    .chart-wrap { height: 90px; display: flex; align-items: flex-end; gap: 5px; padding: 0 2px; }
+    .bar { flex: 1; border-radius: 4px 4px 0 0; min-width: 0; transition: opacity .2s; cursor: pointer; }
+    .bar:hover { opacity: .75; }
+    .chart-lbl-row { display: flex; gap: 5px; margin-top: 5px; }
+    .chart-lbl { flex: 1; text-align: center; font-size: 10px; color: var(--text-light); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ════════════════ DONUT CHART ════════════════ */
+    .donut-wrap { display: flex; align-items: center; gap: 20px; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+    .donut-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-mid); }
+    .donut-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ════════════════ TWO / THREE COLUMN LAYOUTS ════════════════ */
+    .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .col-7-3   { display: grid; grid-template-columns: 7fr 3fr; gap: 18px; margin-bottom: 18px; }
+
+    /* ════════════════ INFO ROWS ════════════════ */
+    .irow { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(214,232,222,.4); font-size: 13.5px; }
+    .irow:last-child { border-bottom: none; }
+    .irow .lbl { color: var(--text-light); }
+    .irow .val { color: var(--text-dark); font-weight: 600; text-align: right; }
+
+    /* ════════════════ MEMBER CARD ════════════════ */
+    .mcard { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; transition: .2s; }
+    .mcard:hover { box-shadow: var(--shadow); }
+    .mav { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg,var(--green-deep),var(--green-mid)); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display',serif; font-weight: 700; font-size: 17px; color: var(--accent2); flex-shrink: 0; }
+    .minfo { flex: 1; }
+    .minfo strong { font-size: 14px; color: var(--text-dark); display: block; }
+    .minfo span   { font-size: 12px; color: var(--text-light); }
+    .macts { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ════════════════ LOAN APP CARD ════════════════ */
+    .lacard { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; margin-bottom: 12px; transition: .2s; }
+    .lacard:hover { box-shadow: var(--shadow); }
+    .lacard-hdr { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
+    .lacard-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 12px; }
+    .lacard-item .lbl { font-size: 10px; color: var(--text-light); text-transform: uppercase; letter-spacing: .06em; }
+    .lacard-item .val { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-top: 2px; }
+    .lacard-item .val.big { font-size: 18px; color: var(--green-deep); }
+    .lacard-purpose { background: var(--cream); border-radius: 7px; padding: 9px 13px; font-size: 13px; color: var(--text-mid); margin-bottom: 12px; }
+
+    /* ════════════════ LOAN PROGRESS ════════════════ */
+    .prog-bar { height: 5px; background: var(--border); border-radius: 100px; margin: 6px 0; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--green-mid), var(--green-light)); }
+
+    /* ════════════════ REPORT CARD ════════════════ */
+    .rcard { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; transition: .2s; }
+    .rcard:hover { box-shadow: var(--shadow); }
+    .rcard-info { display: flex; align-items: center; gap: 14px; }
+    .rcard-ico  { font-size: 28px; }
+    .rcard-title { font-weight: 700; color: var(--text-dark); font-size: 14px; }
+    .rcard-sub   { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+    /* ════════════════ SETTINGS BLOCK ════════════════ */
+    .sblock { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; margin-bottom: 18px; }
+    .sblock h3 { font-family: 'Playfair Display',serif; font-size: 16px; color: var(--green-deep); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+
+    /* ════════════════ MODAL ════════════════ */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 999; align-items: center; justify-content: center; padding: 20px; }
+    .modal-bg.open { display: flex; }
+    .modal { background: #fff; border-radius: var(--radius-lg); padding: 28px; max-width: 720px; width: 100%; max-height: 88vh; overflow-y: auto; position: relative; animation: fadeUp .3s ease; }
+    .modal-close { position: absolute; top: 14px; right: 18px; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-light); line-height: 1; }
+    .modal h2 { font-family: 'Playfair Display',serif; font-size: 21px; color: var(--green-deep); margin-bottom: 18px; }
+
+    /* ════════════════ TOAST ════════════════ */
+    #toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-msg { background: var(--green-deep); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); animation: fadeUp .3s ease; max-width: 320px; display: flex; align-items: center; gap: 10px; }
+    .toast-msg.err { background: var(--red); }
+    .toast-msg.warn { background: #b07d00; }
+
+    /* ════════════════ TIMELINE ════════════════ */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-item { display: flex; gap: 12px; padding-bottom: 16px; position: relative; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green-mid); flex-shrink: 0; margin-top: 5px; position: relative; z-index: 1; }
+    .tl-item:not(:last-child) .tl-dot::after { content: ''; position: absolute; top: 10px; left: 4px; width: 2px; background: var(--border); bottom: -16px; }
+    .tl-body { flex: 1; }
+    .tl-body strong { font-size: 13px; color: var(--text-dark); display: block; }
+    .tl-body span   { font-size: 11px; color: var(--text-light); }
+
+    /* ════════════════ ALERT BOX ════════════════ */
+    .alert-box { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
+    .alert-box.info   { background: rgba(41,128,185,.08); border-left: 3px solid var(--blue); color: #1a4f7a; }
+    .alert-box.warn   { background: rgba(176,125,0,.08); border-left: 3px solid #b07d00; color: #7a5200; }
+    .alert-box.danger { background: rgba(231,76,60,.08); border-left: 3px solid var(--red); color: #7a1f15; }
+    .alert-box.ok     { background: rgba(26,107,60,.08); border-left: 3px solid var(--green-mid); color: #1a4731; }
+
+    /* ════════════════ RESPONSIVE ════════════════ */
+    @media(max-width:1200px) {
+      .kpi-row.c4 { grid-template-columns: repeat(2,1fr); }
+      .kpi-row.c6 { grid-template-columns: repeat(3,1fr); }
+      .lacard-grid { grid-template-columns: repeat(3,1fr); }
+    }
+    @media(max-width:1024px) {
+      .three-col { grid-template-columns: 1fr 1fr; }
+      .col-7-3   { grid-template-columns: 1fr; }
+      .g4 { grid-template-columns: 1fr 1fr; }
+    }
+    @media(max-width:900px) {
+      .sb { transform: translateX(-100%); }
+      .sb.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .mob-btn { display: block; }
+      .two-col,.three-col { grid-template-columns: 1fr; }
+      .kpi-row.c4 { grid-template-columns: 1fr 1fr; }
+      .lacard-grid { grid-template-columns: 1fr 1fr; }
+      .g3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media(max-width:640px) {
+      .kpi-row.c4,.kpi-row.c6 { grid-template-columns: 1fr 1fr; }
+      .g2,.g3,.g4 { grid-template-columns: 1fr; }
+      .content { padding: 16px; }
+    }
+
+    .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 299; }
+    .sb-overlay.open { display: block; }
+
+    .mb14 { margin-bottom: 14px; }
+    .mb18 { margin-bottom: 18px; }
+    .mt14 { margin-top: 14px; }
+
+    /* ════ Loan summary for a member ════ */
+    .mini-loan { background: var(--cream); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+    .mini-loan-hdr { display: flex; justify-content: space-between; margin-bottom: 6px; }
+
+    /* ════ Account summary hero ════ */
+    .admin-hero {
+      background: linear-gradient(135deg, var(--dark2) 0%, var(--green-deep) 100%);
+      border-radius: var(--radius-lg); padding: 26px 30px;
+      color: #fff; position: relative; overflow: hidden; margin-bottom: 18px;
+    }
+    .admin-hero::after { content: ''; position: absolute; right: -50px; top: -50px; width: 220px; height: 220px; border-radius: 50%; background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.12); }
+    .admin-hero-inner { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    .ah-stat { text-align: center; }
+    .ah-stat .n { font-family: 'Playfair Display',serif; font-size: 28px; font-weight: 700; color: var(--accent2); }
+    .ah-stat .l { font-size: 11px; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .07em; margin-top: 2px; }
+    .ah-divider { width: 1px; height: 48px; background: rgba(255,255,255,.1); }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar overlay -->
+<div class="sb-overlay" id="sbOv" onclick="closeSB()"></div>
+
+<!-- Member / Loan detail modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle">Details</h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════ -->
+<aside class="sb" id="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-row">
+      <div class="sb-logo-ico">SF</div>
+      <div class="sb-logo-txt">
+        <strong>Stable Fortunes</strong>
+        <span>SACCO Society</span>
+      </div>
+    </div>
+    <div class="admin-pill">⭐ Administrator</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-grp">Overview</div>
+    <a class="sb-lnk on" onclick="go('overview')"><span class="ico">📊</span> Dashboard</a>
+
+    <div class="sb-grp">Members</div>
+    <a class="sb-lnk" onclick="go('members')"><span class="ico">👥</span> All Members</a>
+    <a class="sb-lnk" onclick="go('pending')"><span class="ico">⏳</span> Pending Approval <span class="cnt g" id="sbPending">4</span></a>
+    <a class="sb-lnk" onclick="go('suspended')"><span class="ico">🚫</span> Suspended Members</a>
+
+    <div class="sb-grp">Finance</div>
+    <a class="sb-lnk" onclick="go('loans')"><span class="ico">📋</span> Loan Applications <span class="cnt" id="sbLoans">3</span></a>
+    <a class="sb-lnk" onclick="go('active-loans')"><span class="ico">💳</span> Active Loans</a>
+    <a class="sb-lnk" onclick="go('savings')"><span class="ico">💰</span> Savings Management</a>
+    <a class="sb-lnk" onclick="go('shares')"><span class="ico">📈</span> Shares & Dividends</a>
+    <a class="sb-lnk" onclick="go('deposits')"><span class="ico">🏦</span> Fixed Deposits</a>
+    <a class="sb-lnk" onclick="go('transactions')"><span class="ico">🔁</span> Transactions</a>
+
+    <div class="sb-grp">Operations</div>
+    <a class="sb-lnk" onclick="go('post-entry')"><span class="ico">➕</span> Post Journal Entry</a>
+    <a class="sb-lnk" onclick="go('sms-email')"><span class="ico">📨</span> Send SMS / Email</a>
+    <a class="sb-lnk" onclick="go('defaulters')"><span class="ico">⚠️</span> Defaulters</a>
+
+    <div class="sb-grp">Reports</div>
+    <a class="sb-lnk" onclick="go('reports')"><span class="ico">📄</span> Reports & Exports</a>
+    <a class="sb-lnk" onclick="go('audit')"><span class="ico">🔍</span> Audit Log</a>
+
+    <div class="sb-grp">System</div>
+    <a class="sb-lnk" onclick="go('settings')"><span class="ico">⚙️</span> SACCO Settings</a>
+    <a class="sb-lnk" href="dashboard.html"><span class="ico">👤</span> Member View</a>
+    <a class="sb-lnk" href="index.html"><span class="ico">🌐</span> Website</a>
+    <a class="sb-lnk" onclick="logout()" style="color:rgba(231,76,60,.75)"><span class="ico">🚪</span> Logout</a>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">AD</div>
+      <div class="sb-user-info">
+        <strong>Admin User</strong>
+        <span>admin@stablefortunes.com</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════
+     MAIN
+═══════════════════════════════════════ -->
+<main class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="tb-left">
+      <button class="mob-btn" onclick="openSB()">☰</button>
+      <div class="tb-page">
+        <h1 id="pgTitle">Admin Dashboard</h1>
+        <p id="pgSub">Stable Fortunes SACCO — Management Overview</p>
+      </div>
+    </div>
+    <div class="tb-right">
+      <span class="tb-badge">⭐ Administrator</span>
+      <div class="tb-ico-btn" title="Notifications"><span>🔔</span><span class="nb"></span></div>
+      <div class="tb-ico-btn" title="Search members" onclick="go('members')"><span>🔍</span></div>
+      <div class="tb-av" title="Admin profile">AD</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ════════════════════════════════════════
+         OVERVIEW
+    ════════════════════════════════════════ -->
+    <div class="sec on" id="sec-overview">
+
+      <!-- Hero stats bar -->
+      <div class="admin-hero mb18">
+        <div class="admin-hero-inner">
+          <div class="ah-stat"><div class="n" id="h_members">1,342</div><div class="l">Total Members</div></div>
+          <div class="ah-divider"></div>
+          <div class="ah-stat"><div class="n" id="h_savings">Ksh 48.6M</div><div class="l">Total Savings</div></div>
+          <div class="ah-divider"></div>
+          <div class="ah-stat"><div class="n" id="h_loans">Ksh 32.1M</div><div class="l">Loan Portfolio</div></div>
+          <div class="ah-divider"></div>
+          <div class="ah-stat"><div class="n" id="h_shares">Ksh 18.5M</div><div class="l">Share Capital</div></div>
+          <div class="ah-divider"></div>
+          <div class="ah-stat"><div class="n" id="h_assets">Ksh 82M</div><div class="l">Total Assets</div></div>
+          <div class="ah-divider"></div>
+          <div class="ah-stat"><div class="n" id="h_pending">4</div><div class="l">Pending Approvals</div></div>
+        </div>
+      </div>
+
+      <!-- KPI row -->
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-green">
+          <div class="kpi-ico">👥</div>
+          <div class="kpi-lbl">Active Members</div>
+          <div class="kpi-val" id="kpi_active">1,316</div>
+          <div class="kpi-sub">Out of 1,342 total</div>
+          <span class="kpi-chg up">↑ 12 this month</span>
+        </div>
+        <div class="kpi c-gold">
+          <div class="kpi-ico">💰</div>
+          <div class="kpi-lbl">Monthly Inflow</div>
+          <div class="kpi-val" id="kpi_inflow">Ksh 4.2M</div>
+          <div class="kpi-sub">November 2024</div>
+          <span class="kpi-chg up">↑ 6.3% vs Oct</span>
+        </div>
+        <div class="kpi c-red">
+          <div class="kpi-ico">⚠️</div>
+          <div class="kpi-lbl">Overdue Loans</div>
+          <div class="kpi-val" id="kpi_overdue">12</div>
+          <div class="kpi-sub">Ksh 1.4M at risk</div>
+          <span class="kpi-chg dn">↑ 2 new this week</span>
+        </div>
+        <div class="kpi c-blue">
+          <div class="kpi-ico">📅</div>
+          <div class="kpi-lbl">Loan Approvals Pending</div>
+          <div class="kpi-val" id="kpi_lapps">3</div>
+          <div class="kpi-sub">Awaiting decision</div>
+          <span class="kpi-chg neu">Action needed</span>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="two-col mb18">
+        <div class="panel">
+          <div class="panel-hdr">
+            <div><div class="panel-title">📊 Member Growth — 2024</div><div class="panel-sub">Monthly new registrations</div></div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-wrap" id="ov_memberChart"></div>
+            <div class="chart-lbl-row" id="ov_memberLabels"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr">
+            <div><div class="panel-title">💰 Savings Inflow — 2024</div><div class="panel-sub">Monthly savings received (Ksh millions)</div></div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-wrap" id="ov_savingsChart"></div>
+            <div class="chart-lbl-row" id="ov_savingsLabels"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending + Loan apps preview -->
+      <div class="two-col mb18">
+        <div class="panel">
+          <div class="panel-hdr">
+            <div><div class="panel-title">⏳ Pending Member Approvals</div></div>
+            <button class="btn-view" onclick="go('pending')">View All →</button>
+          </div>
+          <div class="panel-body" id="ov_pendingList" style="padding:14px 20px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr">
+            <div><div class="panel-title">📋 Pending Loan Applications</div></div>
+            <button class="btn-view" onclick="go('loans')">View All →</button>
+          </div>
+          <div class="panel-body" id="ov_loanList" style="padding:14px 20px"></div>
+        </div>
+      </div>
+
+      <!-- SACCO summary + Events + Quick actions -->
+      <div class="three-col">
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">🏛️ SACCO Financials</div></div>
+          <div class="panel-body">
+            <div class="irow"><span class="lbl">Total Assets</span><span class="val" id="fin_assets">—</span></div>
+            <div class="irow"><span class="lbl">Total Liabilities</span><span class="val" id="fin_liab">—</span></div>
+            <div class="irow"><span class="lbl">Net Worth</span><span class="val" id="fin_net" style="color:var(--green-mid)">—</span></div>
+            <div class="irow"><span class="lbl">Loan Portfolio</span><span class="val" id="fin_lp">—</span></div>
+            <div class="irow"><span class="lbl">NPL Ratio</span><span class="val" style="color:var(--red)">2.1%</span></div>
+            <div class="irow"><span class="lbl">Liquidity Ratio</span><span class="val">85.4%</span></div>
+            <div class="irow"><span class="lbl">Dividend Rate (FY24)</span><span class="val">12%</span></div>
+            <div class="irow"><span class="lbl">Share Price</span><span class="val">Ksh 1,000</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">📅 Upcoming Events</div></div>
+          <div class="panel-body">
+            <div class="timeline" id="ov_timeline"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">⚡ Quick Actions</div></div>
+          <div class="panel-body" style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="go('pending')">✓ Approve Members (4)</button>
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="go('loans')">📋 Review Loan Apps (3)</button>
+            <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--border);justify-content:center" onclick="go('post-entry')">➕ Post Journal Entry</button>
+            <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--border);justify-content:center" onclick="go('shares')">🎁 Post Dividends</button>
+            <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--border);justify-content:center" onclick="go('sms-email')">📨 Send Bulk SMS</button>
+            <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--border);justify-content:center" onclick="go('reports')">📄 Generate Reports</button>
+            <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--border);justify-content:center" onclick="go('defaulters')">⚠️ View Defaulters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         ALL MEMBERS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-members">
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-green"><div class="kpi-ico">👥</div><div class="kpi-lbl">Total Members</div><div class="kpi-val" id="m_total">0</div></div>
+        <div class="kpi c-gold"><div class="kpi-ico">✅</div><div class="kpi-lbl">Active</div><div class="kpi-val" id="m_active">0</div></div>
+        <div class="kpi c-purple"><div class="kpi-ico">⏳</div><div class="kpi-lbl">Pending</div><div class="kpi-val" id="m_pending">0</div></div>
+        <div class="kpi c-red"><div class="kpi-ico">🚫</div><div class="kpi-lbl">Suspended</div><div class="kpi-val" id="m_susp">0</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Member Registry</div><div class="panel-sub" id="m_count">All members</div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Name, ID, phone, member no…" oninput="searchT('tMembers',this.value)"></div>
+            <select class="sel" onchange="filterT('tMembers',this.value,'status')"><option value="">All Status</option><option>Active</option><option>Pending</option><option>Suspended</option></select>
+            <select class="sel" onchange="filterT('tMembers',this.value,'type')"><option value="">All Types</option><option>Ordinary</option><option>Biashara</option><option>Investment</option><option>Elimu</option></select>
+            <button class="btn btn-green btn-sm" onclick="exportCSV('tMembers','members')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Member No.</th><th>Full Name</th><th>Phone</th><th>Email</th>
+              <th>Account</th><th>Savings</th><th>Shares</th><th>Loans</th>
+              <th>Joined</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="tMembers"></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="tMembersFoot">—</span><div style="display:flex;gap:6px"><button class="btn-view" id="prevM" onclick="paginate('tMembers',-1)">← Prev</button><span id="tMembersPage" style="font-size:13px;padding:4px 10px">1</span><button class="btn-view" id="nextM" onclick="paginate('tMembers',1)">Next →</button></div></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         PENDING APPROVAL
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-pending">
+      <div class="alert-box info mb14">ℹ️ Review each member's profile carefully before approving. Check ID verification, phone verification, and all submitted documents.</div>
+      <div id="pendingCards"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         SUSPENDED MEMBERS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-suspended">
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">🚫 Suspended Members</div></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Member No.</th><th>Name</th><th>Phone</th><th>Reason</th><th>Suspended On</th><th>Actions</th></tr></thead>
+            <tbody id="tSuspended"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         LOAN APPLICATIONS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-loans">
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-gold"><div class="kpi-ico">⏳</div><div class="kpi-lbl">Pending</div><div class="kpi-val" id="la_pend">0</div></div>
+        <div class="kpi c-green"><div class="kpi-ico">✅</div><div class="kpi-lbl">Approved</div><div class="kpi-val" id="la_appr">0</div></div>
+        <div class="kpi c-red"><div class="kpi-ico">✗</div><div class="kpi-lbl">Rejected</div><div class="kpi-val" id="la_rej">0</div></div>
+        <div class="kpi c-blue"><div class="kpi-ico">💵</div><div class="kpi-lbl">Total Applied (This Month)</div><div class="kpi-val" id="la_amt">Ksh 0</div></div>
+      </div>
+      <div class="alert-box warn mb14">⚠️ Verify each applicant's savings balance (×3 rule), share capital (×5 rule), and guarantor status before approving.</div>
+      <div id="loanApplCards"></div>
+      <div class="panel mt14">
+        <div class="panel-hdr">
+          <div class="panel-title">All Loan Applications</div>
+          <div style="display:flex;gap:8px">
+            <select class="sel" onchange="filterT('tLoanApps',this.value,'status')"><option value="">All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option></select>
+            <button class="btn btn-green btn-sm" onclick="exportCSV('tLoanApps','loan-applications')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Ref</th><th>Member</th><th>Type</th><th>Amount</th><th>Period</th><th>Monthly</th><th>Guarantor</th><th>Applied</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="tLoanApps"></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="tLoanAppsFoot">—</span></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         ACTIVE LOANS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-active-loans">
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-blue"><div class="kpi-ico">📋</div><div class="kpi-lbl">Active Loans</div><div class="kpi-val" id="al_count">0</div></div>
+        <div class="kpi c-green"><div class="kpi-ico">💵</div><div class="kpi-lbl">Total Disbursed</div><div class="kpi-val" id="al_disb">Ksh 0</div></div>
+        <div class="kpi c-gold"><div class="kpi-ico">💰</div><div class="kpi-lbl">Outstanding</div><div class="kpi-val" id="al_out">Ksh 0</div></div>
+        <div class="kpi c-red"><div class="kpi-ico">⚠️</div><div class="kpi-lbl">Overdue</div><div class="kpi-val" id="al_over">0</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Active Loan Register</div></div>
+          <div style="display:flex;gap:8px">
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Member, loan type, ref…" oninput="searchT('tActiveLoans',this.value)"></div>
+            <select class="sel" onchange="filterT('tActiveLoans',this.value,'status')"><option value="">All</option><option>Active</option><option>Overdue</option></select>
+            <button class="btn btn-green btn-sm" onclick="exportCSV('tActiveLoans','active-loans')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Ref</th><th>Member</th><th>Type</th><th>Principal</th><th>Outstanding</th><th>Repaid</th><th>Monthly</th><th>Next Due</th><th>%Paid</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="tActiveLoans"></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="tActiveLoansFoot">—</span></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         SAVINGS MANAGEMENT
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-savings">
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-green"><div class="kpi-ico">💰</div><div class="kpi-lbl">Total Savings</div><div class="kpi-val" id="sv_total">Ksh 0</div></div>
+        <div class="kpi c-gold"><div class="kpi-ico">📅</div><div class="kpi-lbl">This Month Inflow</div><div class="kpi-val" id="sv_inflow">Ksh 0</div></div>
+        <div class="kpi c-blue"><div class="kpi-ico">👥</div><div class="kpi-lbl">Contributing Members</div><div class="kpi-val" id="sv_contrib">0</div></div>
+        <div class="kpi c-red"><div class="kpi-ico">⚠️</div><div class="kpi-lbl">Defaulters (No deposit)</div><div class="kpi-val" id="sv_def">0</div></div>
+      </div>
+      <div class="two-col mb18">
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">💹 Savings by Account Type</div></div>
+          <div class="panel-body">
+            <div class="irow"><span class="lbl">Ordinary Savings</span><span class="val" id="sv_ordinary">—</span></div>
+            <div class="irow"><span class="lbl">Biashara Account</span><span class="val" id="sv_biashara">—</span></div>
+            <div class="irow"><span class="lbl">Elimu Account</span><span class="val" id="sv_elimu">—</span></div>
+            <div class="irow"><span class="lbl">Holiday Account</span><span class="val" id="sv_holiday">—</span></div>
+            <div class="irow"><span class="lbl">Investment Account</span><span class="val" id="sv_invest">—</span></div>
+            <div class="irow"><span class="lbl">Children's Account</span><span class="val" id="sv_children">—</span></div>
+            <div class="irow"><span class="lbl">Retirement Account</span><span class="val" id="sv_retire">—</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">📊 Savings Trend — 6 Months</div></div>
+          <div class="panel-body">
+            <div class="chart-wrap" id="sv_chart"></div>
+            <div class="chart-lbl-row" id="sv_labels"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Member Savings Summary</div></div>
+          <div style="display:flex;gap:8px">
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Search member…" oninput="searchT('tSavings',this.value)"></div>
+            <button class="btn btn-green btn-sm" onclick="exportCSV('tSavings','savings')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Member No.</th><th>Name</th><th>Ordinary</th><th>Biashara</th><th>Elimu</th><th>Holiday</th><th>Investment</th><th>Total</th><th>Last Deposit</th><th>Status</th></tr></thead>
+            <tbody id="tSavings"></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="tSavingsFoot">—</span></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         SHARES & DIVIDENDS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-shares">
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-gold"><div class="kpi-ico">📈</div><div class="kpi-lbl">Total Shares Issued</div><div class="kpi-val" id="sh_total">0</div></div>
+        <div class="kpi c-green"><div class="kpi-ico">💵</div><div class="kpi-lbl">Share Capital</div><div class="kpi-val" id="sh_cap">Ksh 0</div></div>
+        <div class="kpi c-purple"><div class="kpi-ico">🎁</div><div class="kpi-lbl">Dividends Paid (FY24)</div><div class="kpi-val" id="sh_div">Ksh 0</div></div>
+        <div class="kpi c-blue"><div class="kpi-ico">📊</div><div class="kpi-lbl">Dividend Rate</div><div class="kpi-val">12%</div><div class="kpi-sub">Current FY</div></div>
+      </div>
+      <div class="two-col mb18">
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Member Share Holdings</div></div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Member No.</th><th>Name</th><th>Shares</th><th>Value</th><th>Dividends (FY24)</th><th>Actions</th></tr></thead>
+              <tbody id="tShares"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="sblock">
+            <h3>🎁 Post Dividends</h3>
+            <div class="fg"><label class="fl">Financial Year</label><input type="text" class="fc" id="div_fy" value="2023/24"></div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Dividend Rate (%)</label><input type="number" class="fc" id="div_rate" value="12" min="0" max="100" oninput="calcDiv()"></div>
+              <div class="fg"><label class="fl">Payment Date</label><input type="date" class="fc" id="div_date"></div>
+            </div>
+            <div class="alert-box info mb14" id="div_preview">💡 Enter the rate above to calculate total payout.</div>
+            <button class="btn btn-green" style="width:100%;justify-content:center;padding:12px" onclick="postDividends()">Post Dividends to All Members</button>
+          </div>
+          <div class="sblock" style="margin-top:0">
+            <h3>➕ Add Shares for Member</h3>
+            <div class="fg"><label class="fl">Member Number</label><input type="text" class="fc" id="sh_memno" placeholder="SF-2024-000042"></div>
+            <div class="g2">
+              <div class="fg"><label class="fl">No. of Shares</label><input type="number" class="fc" id="sh_qty" placeholder="5" min="1"></div>
+              <div class="fg"><label class="fl">Date</label><input type="date" class="fc" id="sh_date"></div>
+            </div>
+            <button class="btn btn-green" style="width:100%;justify-content:center;padding:11px" onclick="addShares()">Add Shares</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         FIXED DEPOSITS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-deposits">
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-green"><div class="kpi-ico">🏦</div><div class="kpi-lbl">Total Fixed Deposits</div><div class="kpi-val" id="dp_total">Ksh 0</div></div>
+        <div class="kpi c-gold"><div class="kpi-ico">💹</div><div class="kpi-lbl">Interest Accrued</div><div class="kpi-val" id="dp_interest">Ksh 0</div></div>
+        <div class="kpi c-blue"><div class="kpi-ico">⏰</div><div class="kpi-lbl">Maturing This Month</div><div class="kpi-val" id="dp_mat">0</div></div>
+        <div class="kpi c-purple"><div class="kpi-ico">📋</div><div class="kpi-lbl">Active Deposits</div><div class="kpi-val" id="dp_active">0</div></div>
+      </div>
+      <div class="two-col mb18">
+        <div class="panel" style="grid-column:1">
+          <div class="panel-hdr"><div class="panel-title">Fixed Deposit Register</div><button class="btn btn-green btn-sm" onclick="exportCSV('tDeposits','deposits')">⬇ CSV</button></div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Member</th><th>Amount</th><th>Rate</th><th>Start Date</th><th>Maturity</th><th>Interest Earned</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="tDeposits"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="sblock" style="align-self:start">
+          <h3>🏦 Create Fixed Deposit</h3>
+          <div class="fg"><label class="fl">Member Number</label><input type="text" class="fc" placeholder="SF-2024-000042"></div>
+          <div class="g2">
+            <div class="fg"><label class="fl">Amount (Ksh)</label><input type="number" class="fc" placeholder="50000" min="10000"></div>
+            <div class="fg"><label class="fl">Rate (% p.a.)</label><input type="number" class="fc" value="9" min="1" max="25"></div>
+          </div>
+          <div class="g2">
+            <div class="fg"><label class="fl">Start Date</label><input type="date" class="fc"></div>
+            <div class="fg"><label class="fl">Duration (months)</label><select class="fc"><option>6</option><option selected>12</option><option>18</option><option>24</option></select></div>
+          </div>
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:11px" onclick="toast('Fixed deposit created successfully!')">Create Deposit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         TRANSACTIONS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-transactions">
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-green"><div class="kpi-ico">💳</div><div class="kpi-lbl">Total Credits (This Month)</div><div class="kpi-val" id="tx_cr">Ksh 0</div></div>
+        <div class="kpi c-red"><div class="kpi-ico">💸</div><div class="kpi-lbl">Total Debits (This Month)</div><div class="kpi-val" id="tx_dr">Ksh 0</div></div>
+        <div class="kpi c-blue"><div class="kpi-ico">🔁</div><div class="kpi-lbl">Transactions (This Month)</div><div class="kpi-val" id="tx_cnt">0</div></div>
+        <div class="kpi c-gold"><div class="kpi-ico">📱</div><div class="kpi-lbl">M-PESA Transactions</div><div class="kpi-val" id="tx_mpesa">0</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Complete Transaction Ledger</div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Ref, member, description…" oninput="searchT('tTxns',this.value)"></div>
+            <select class="sel" onchange="filterT('tTxns',this.value,'type')"><option value="">All Types</option><option>Credit</option><option>Debit</option></select>
+            <select class="sel"><option value="">All Channels</option><option>M-PESA</option><option>Bank Transfer</option><option>Cash</option></select>
+            <button class="btn btn-green btn-sm" onclick="exportCSV('tTxns','transactions')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Date & Time</th><th>Ref No.</th><th>Member</th><th>Description</th><th>Type</th><th>Amount</th><th>Channel</th><th>Posted By</th></tr></thead>
+            <tbody id="tTxns"></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="tTxnsFoot">—</span></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         POST JOURNAL ENTRY
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-post-entry">
+      <div class="two-col">
+        <div class="sblock">
+          <h3>➕ Post Manual Journal Entry</h3>
+          <div class="alert-box warn mb14">⚠️ Manual entries are logged in the audit trail and require admin confirmation. Use with caution.</div>
+          <div class="fg"><label class="fl">Member Number *</label><input type="text" class="fc" id="je_memno" placeholder="SF-2024-000042"></div>
+          <div class="g2">
+            <div class="fg"><label class="fl">Transaction Type *</label>
+              <select class="fc" id="je_type">
+                <option value="">Select…</option>
+                <option>Savings Deposit</option><option>Savings Withdrawal</option>
+                <option>Loan Disbursement</option><option>Loan Repayment</option>
+                <option>Share Purchase</option><option>Dividend Payment</option>
+                <option>Fixed Deposit</option><option>Fee Collection</option>
+                <option>Reversal</option><option>Adjustment</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Amount (Ksh) *</label><input type="number" class="fc" id="je_amount" placeholder="0" min="0"></div>
+          </div>
+          <div class="g2">
+            <div class="fg"><label class="fl">Account Type</label>
+              <select class="fc" id="je_acct">
+                <option>Ordinary Savings</option><option>Elimu Account</option>
+                <option>Holiday Account</option><option>Investment Account</option>
+                <option>Loan Account</option><option>Share Capital</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Value Date *</label><input type="date" class="fc" id="je_date"></div>
+          </div>
+          <div class="fg"><label class="fl">Reference / Narration *</label><input type="text" class="fc" id="je_ref" placeholder="e.g. M-PESA Ref: QJK8XXXXXXX"></div>
+          <div class="fg"><label class="fl">Description / Reason *</label><textarea class="fc" id="je_desc" rows="3" style="resize:vertical" placeholder="Explain the reason for this manual entry…"></textarea></div>
+          <div class="fg"><label class="fl">Admin Confirmation Code</label><input type="password" class="fc" id="je_code" placeholder="Enter your admin PIN"></div>
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:13px" onclick="postEntry()">Post Journal Entry</button>
+        </div>
+        <div>
+          <div class="panel mb14">
+            <div class="panel-hdr"><div class="panel-title">📋 Recent Manual Entries</div></div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Date</th><th>Member</th><th>Type</th><th>Amount</th><th>By</th></tr></thead>
+                <tbody id="tJournalEntries"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="alert-box ok">✅ All manual journal entries are automatically logged in the audit trail with your admin credentials, timestamp, and IP address.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         SEND SMS / EMAIL
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-sms-email">
+      <div class="two-col">
+        <div class="sblock">
+          <h3>📱 Send Bulk SMS</h3>
+          <div class="fg"><label class="fl">Recipients</label>
+            <select class="fc" id="sms_to">
+              <option>All Members</option>
+              <option>Active Members Only</option>
+              <option>Members with Overdue Loans</option>
+              <option>Members Due for Repayment (This Week)</option>
+              <option>Pending Approval Members</option>
+              <option>Specific Member Number</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Specific Member No. (if above)</label><input type="text" class="fc" placeholder="SF-2024-000042 (leave blank for bulk)"></div>
+          <div class="fg">
+            <label class="fl">Message Template</label>
+            <select class="fc" onchange="loadSmsTemplate(this.value)">
+              <option value="">Custom message…</option>
+              <option value="loan_due">Loan Repayment Reminder</option>
+              <option value="welcome">Welcome New Member</option>
+              <option value="dividend">Dividend Notice</option>
+              <option value="agm">AGM Notice</option>
+              <option value="deposit">Deposit Received Confirmation</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Message Text * <span style="float:right;font-weight:400;color:var(--text-light)" id="smsLen">0 / 160 chars</span></label>
+            <textarea class="fc" id="sms_msg" rows="4" style="resize:vertical" placeholder="Type your SMS message here…" oninput="document.getElementById('smsLen').textContent=this.value.length+' / 160 chars'"></textarea>
+          </div>
+          <div class="alert-box info mb14">📱 SMS sent via Africa's Talking gateway. Cost: ~Ksh 0.80 per SMS. Estimated total: <strong id="smsCost">—</strong></div>
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:12px" onclick="sendSMS()">Send SMS</button>
+        </div>
+        <div class="sblock">
+          <h3>✉️ Send Bulk Email</h3>
+          <div class="fg"><label class="fl">Recipients</label>
+            <select class="fc">
+              <option>All Members</option>
+              <option>Active Members Only</option>
+              <option>Members with Overdue Loans</option>
+              <option>Specific Member</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Subject *</label><input type="text" class="fc" id="email_sub" placeholder="e.g. Stable Fortunes SACCO — Dividend Notice 2024"></div>
+          <div class="fg"><label class="fl">Email Template</label>
+            <select class="fc" onchange="loadEmailTemplate(this.value)">
+              <option value="">Custom message…</option>
+              <option value="welcome">Welcome Email</option>
+              <option value="dividend">Dividend Announcement</option>
+              <option value="loan_approve">Loan Approval</option>
+              <option value="agm">AGM Invitation</option>
+              <option value="statement">Statement Ready</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Message Body *</label><textarea class="fc" id="email_body" rows="6" style="resize:vertical" placeholder="Type your email message here…"></textarea></div>
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:12px" onclick="sendEmail()">Send Email</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         DEFAULTERS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-defaulters">
+      <div class="alert-box danger mb14">🚨 The following members have overdue loan repayments. Take action immediately to avoid NPL increase.</div>
+      <div class="kpi-row c4 mb18">
+        <div class="kpi c-red"><div class="kpi-ico">⚠️</div><div class="kpi-lbl">Total Defaulters</div><div class="kpi-val" id="df_count">0</div></div>
+        <div class="kpi c-gold"><div class="kpi-ico">💸</div><div class="kpi-lbl">Amount at Risk</div><div class="kpi-val" id="df_amt">Ksh 0</div></div>
+        <div class="kpi c-purple"><div class="kpi-ico">📅</div><div class="kpi-lbl">30–60 Days Overdue</div><div class="kpi-val" id="df_30">0</div></div>
+        <div class="kpi c-red"><div class="kpi-ico">🔴</div><div class="kpi-lbl">60+ Days Overdue</div><div class="kpi-val" id="df_60">0</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Loan Defaulters Register</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-view" onclick="sendBulkReminder()">📱 Send Bulk SMS Reminder</button>
+            <button class="btn btn-green btn-sm" onclick="exportCSV('tDefaulters','defaulters')">⬇ CSV</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Member</th><th>Loan Ref</th><th>Type</th><th>Overdue Amount</th><th>Days Overdue</th><th>Last Payment</th><th>Outstanding Balance</th><th>Actions</th></tr></thead>
+            <tbody id="tDefaulters"></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="tDefaultersFoot">—</span></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         REPORTS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-reports">
+      <div class="two-col mb18">
+        <div class="sblock">
+          <h3>📅 Custom Date Range Report</h3>
+          <div class="g2">
+            <div class="fg"><label class="fl">From Date</label><input type="date" class="fc" id="rpt_from"></div>
+            <div class="fg"><label class="fl">To Date</label><input type="date" class="fc" id="rpt_to"></div>
+          </div>
+          <div class="fg"><label class="fl">Report Type</label>
+            <select class="fc" id="rpt_type">
+              <option>Full Account Statement</option>
+              <option>Savings Report</option>
+              <option>Loan Portfolio Report</option>
+              <option>Transaction Ledger</option>
+              <option>Member Register</option>
+              <option>Defaulters Report</option>
+              <option>Dividend Report</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Format</label>
+            <select class="fc">
+              <option>PDF</option><option>Excel (XLSX)</option><option>CSV</option>
+            </select>
+          </div>
+          <button class="btn btn-green" style="width:100%;justify-content:center;padding:12px" onclick="genReport()">Generate Report</button>
+        </div>
+        <div class="sblock">
+          <h3>📊 Standard Reports</h3>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="toast('Generating Monthly Summary...')">📋 Monthly Summary Report</button>
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="toast('Generating Loan Portfolio...')">💳 Loan Portfolio Report</button>
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="toast('Generating Member Register...')">👥 Member Register</button>
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="toast('Generating Balance Sheet...')">🏛️ Balance Sheet</button>
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="toast('Generating SASRA Report...')">📑 SASRA Regulatory Report</button>
+            <button class="btn btn-green btn-sm" style="justify-content:center" onclick="toast('Generating Dividend Report...')">🎁 Dividend Distribution Report</button>
+            <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--border);justify-content:center" onclick="toast('Generating Tax Statement...')">🗂️ Annual Tax Statement</button>
+          </div>
+        </div>
+      </div>
+      <div id="reportsList"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         AUDIT LOG
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-audit">
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">🔍 System Audit Log</div><div class="panel-sub">All admin actions, logins, and system events</div></div>
+          <div style="display:flex;gap:8px">
+            <div class="search-bar"><span>🔍</span><input type="text" placeholder="Search audit events…" oninput="searchT('tAudit',this.value)"></div>
+            <select class="sel" onchange="filterT('tAudit',this.value,'action')">
+              <option value="">All Actions</option>
+              <option>MEMBER_APPROVED</option><option>LOAN_APPROVED</option>
+              <option>LOAN_REJECTED</option><option>MEMBER_SUSPENDED</option>
+              <option>JOURNAL_ENTRY</option><option>LOGIN</option>
+              <option>SETTINGS_UPDATED</option>
+            </select>
+            <button class="btn btn-green btn-sm" onclick="exportCSV('tAudit','audit-log')">⬇ Export</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Timestamp</th><th>Admin</th><th>Action</th><th>Details</th><th>Member</th><th>IP Address</th></tr></thead>
+            <tbody id="tAudit"></tbody>
+          </table>
+        </div>
+        <div class="panel-foot"><span id="tAuditFoot">—</span></div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         SETTINGS
+    ════════════════════════════════════════ -->
+    <div class="sec" id="sec-settings">
+      <div class="two-col">
+        <div>
+          <div class="sblock">
+            <h3>🏛️ SACCO Identity</h3>
+            <div class="g2">
+              <div class="fg"><label class="fl">SACCO Name</label><input type="text" class="fc" value="Stable Fortunes SACCO Society"></div>
+              <div class="fg"><label class="fl">Registration No.</label><input type="text" class="fc" value="CS/SF/2019/001234"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label class="fl">SASRA License No.</label><input type="text" class="fc" value="SASRA/2019/SF001"></div>
+              <div class="fg"><label class="fl">KRA PIN</label><input type="text" class="fc" value="P051234567B"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label class="fl">M-PESA Pay Bill</label><input type="text" class="fc" value="4076949"></div>
+              <div class="fg"><label class="fl">Bank Account</label><input type="text" class="fc" value="Equity Bank — 1234567890"></div>
+            </div>
+            <div class="fg"><label class="fl">Office Address</label><input type="text" class="fc" value="Corner House, 6th Floor, Kimathi Street, Nairobi"></div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Office Phone</label><input type="text" class="fc" value="011 49 149 49"></div>
+              <div class="fg"><label class="fl">Email</label><input type="text" class="fc" value="info@stablefortunes.com"></div>
+            </div>
+            <button class="btn btn-green" onclick="toast('SACCO identity settings saved!')">Save Identity Settings</button>
+          </div>
+          <div class="sblock">
+            <h3>🔐 Admin Access</h3>
+            <div class="fg"><label class="fl">Current Password</label><input type="password" class="fc" placeholder="Current admin password"></div>
+            <div class="fg"><label class="fl">New Password</label><input type="password" class="fc" placeholder="New password (min 12 chars)"></div>
+            <div class="fg"><label class="fl">Confirm Password</label><input type="password" class="fc" placeholder="Confirm new password"></div>
+            <button class="btn btn-green" onclick="toast('Password updated successfully!')">Update Password</button>
+          </div>
+        </div>
+        <div>
+          <div class="sblock">
+            <h3>💰 Financial Parameters</h3>
+            <div class="alert-box warn mb14">⚠️ Changes take effect immediately. Ensure board approval before modifying rates.</div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Min Monthly Savings (Ksh)</label><input type="number" class="fc" value="1000"></div>
+              <div class="fg"><label class="fl">Entrance Fee (Ksh)</label><input type="number" class="fc" value="1000"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Share Price (Ksh)</label><input type="number" class="fc" value="1000"></div>
+              <div class="fg"><label class="fl">Min Shares to Buy</label><input type="number" class="fc" value="1"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Loan Rate (% per month)</label><input type="number" class="fc" value="1" step="0.1"></div>
+              <div class="fg"><label class="fl">Processing Fee (%)</label><input type="number" class="fc" value="2" step="0.5"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Max Loan Multiplier (×savings)</label><input type="number" class="fc" value="3"></div>
+              <div class="fg"><label class="fl">Max Loan Multiplier (×shares)</label><input type="number" class="fc" value="5"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label class="fl">Fixed Deposit Rate (% p.a.)</label><input type="number" class="fc" value="9" step="0.5"></div>
+              <div class="fg"><label class="fl">Dividend Rate FY 2024/25 (%)</label><input type="number" class="fc" value="12" step="0.5"></div>
+            </div>
+            <div class="g2">
+              <div class="fg"><label class="fl">OTP Expiry (minutes)</label><input type="number" class="fc" value="10"></div>
+              <div class="fg"><label class="fl">Min Membership (months for loan)</label><input type="number" class="fc" value="3"></div>
+            </div>
+            <button class="btn btn-green" onclick="toast('Financial parameters updated!')">Update Parameters</button>
+          </div>
+          <div class="sblock">
+            <h3>🔔 Notification Settings</h3>
+            <div class="fg"><label class="fl">SMS Gateway API Key</label><input type="text" class="fc" value="****************************" placeholder="Africa's Talking API key"></div>
+            <div class="fg"><label class="fl">SMTP Email Host</label><input type="text" class="fc" value="smtp.gmail.com"></div>
+            <div class="fg"><label class="fl">Email From Address</label><input type="text" class="fc" value="noreply@stablefortunes.com"></div>
+            <button class="btn btn-green" onclick="toast('Notification settings saved!')">Save Notification Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+/* ════════════════════════════════════════
+   CONSTANTS & STATE
+════════════════════════════════════════ */
+const API   = 'http://localhost:8080/api';
+const TOKEN = sessionStorage.getItem('sf_token') || '';
+const PAGE_SIZE = 15;
+const pageState = {};
+
+const TITLES = {
+  overview:      ['Admin Dashboard',          'Stable Fortunes SACCO — Management Overview'],
+  members:       ['All Members',              'Complete member registry'],
+  pending:       ['Pending Approvals',        'Review new member applications'],
+  suspended:     ['Suspended Members',        'Accounts currently suspended'],
+  loans:         ['Loan Applications',        'Review and approve loan requests'],
+  'active-loans':['Active Loan Register',     'All active and overdue loans'],
+  savings:       ['Savings Management',       'Member savings overview'],
+  shares:        ['Shares & Dividends',       'Share capital and dividend management'],
+  deposits:      ['Fixed Deposits',           'Fixed deposit register'],
+  transactions:  ['Transaction Ledger',       'Complete SACCO transaction history'],
+  'post-entry':  ['Post Journal Entry',       'Manually post financial transactions'],
+  'sms-email':   ['Send SMS / Email',         'Communicate with members'],
+  defaulters:    ['Loan Defaulters',          'Members with overdue repayments'],
+  reports:       ['Reports & Exports',        'Generate and download reports'],
+  audit:         ['Audit Log',                'System activity and security trail'],
+  settings:      ['SACCO Settings',           'Configure system parameters'],
+};
+
+/* ════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+function go(name) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.sb-lnk').forEach(l => l.classList.remove('on'));
+  const sec = document.getElementById('sec-' + name);
+  if (sec) sec.classList.add('on');
+  const [t, s] = TITLES[name] || ['Admin', ''];
+  document.getElementById('pgTitle').textContent = t;
+  document.getElementById('pgSub').textContent   = s;
+  document.querySelectorAll('.sb-lnk').forEach(l => {
+    if (l.getAttribute('onclick')?.includes(`'${name}'`)) l.classList.add('on');
+  });
+  closeSB();
+}
+
+function openSB()  { document.getElementById('sb').classList.add('open');   document.getElementById('sbOv').classList.add('open'); }
+function closeSB() { document.getElementById('sb').classList.remove('open'); document.getElementById('sbOv').classList.remove('open'); }
+
+/* ════════════════════════════════════════
+   DATA LOAD
+════════════════════════════════════════ */
+async function loadAll() {
+  let d;
+  try {
+    const r = await fetch(`${API}/admin/dashboard`, { headers: { 'Authorization': `Bearer ${TOKEN}` } });
+    if (!r.ok) throw new Error();
+    d = await r.json();
+  } catch { d = demo(); }
+  populate(d);
+}
+
+function populate(d) {
+  const S = d.stats;
+
+  // Hero
+  set('h_members', fmtNum(S.totalMembers));
+  set('h_savings',  fmtK(S.totalSavings));
+  set('h_loans',    fmtK(S.loanPortfolio));
+  set('h_shares',   fmtK(S.shareCapital));
+  set('h_assets',   fmtK(S.totalAssets));
+  set('h_pending',  S.pendingApprovals);
+  set('sbPending',  S.pendingApprovals);
+  set('sbLoans',    S.pendingLoanApps);
+
+  // Overview KPIs
+  set('kpi_active',  fmtNum(S.activeMembers));
+  set('kpi_inflow',  fmt(S.monthlyInflow));
+  set('kpi_overdue', S.overdueLoans);
+  set('kpi_lapps',   S.pendingLoanApps);
+
+  // Financials
+  set('fin_assets', fmt(S.totalAssets));
+  set('fin_liab',   fmt(S.totalLiabilities));
+  set('fin_net',    fmt(S.totalAssets - S.totalLiabilities));
+  set('fin_lp',     fmt(S.loanPortfolio));
+
+  // Members section
+  set('m_total',   S.totalMembers);
+  set('m_active',  S.activeMembers);
+  set('m_pending', S.pendingApprovals);
+  set('m_susp',    S.suspendedMembers || 0);
+  set('m_count',   `${S.totalMembers} members total`);
+
+  // Loans section
+  const appsP = (d.loanApplications||[]).filter(a=>a.status==='Pending');
+  const appsA = (d.loanApplications||[]).filter(a=>a.status==='Approved');
+  const appsR = (d.loanApplications||[]).filter(a=>a.status==='Rejected');
+  set('la_pend', appsP.length);
+  set('la_appr', appsA.length);
+  set('la_rej',  appsR.length);
+  set('la_amt',  fmt(appsP.reduce((s,a)=>s+a.amount,0)));
+
+  // Active loans
+  const active = (d.activeLoans||[]);
+  set('al_count', active.length);
+  set('al_disb',  fmt(active.reduce((s,l)=>s+l.principalAmount,0)));
+  set('al_out',   fmt(active.reduce((s,l)=>s+l.outstandingBalance,0)));
+  set('al_over',  active.filter(l=>l.status==='Overdue').length);
+
+  // Savings
+  set('sv_total',  fmt(S.totalSavings));
+  set('sv_inflow', fmt(S.monthlyInflow));
+  set('sv_contrib',S.contributingMembers);
+  set('sv_def',    S.defaulters);
+  const sb = d.savingsByType || {};
+  set('sv_ordinary', fmt(sb.ordinary||0));
+  set('sv_biashara', fmt(sb.biashara||0));
+  set('sv_elimu',    fmt(sb.elimu||0));
+  set('sv_holiday',  fmt(sb.holiday||0));
+  set('sv_invest',   fmt(sb.investment||0));
+  set('sv_children', fmt(sb.children||0));
+  set('sv_retire',   fmt(sb.retirement||0));
+
+  // Shares
+  set('sh_total', fmtNum(S.totalShares));
+  set('sh_cap',   fmt(S.shareCapital));
+  set('sh_div',   fmt(S.totalDividendsPaid));
+
+  // Deposits
+  const deps = d.deposits || [];
+  set('dp_total',   fmt(deps.reduce((s,d)=>s+d.amount,0)));
+  set('dp_interest',fmt(deps.reduce((s,d)=>s+(d.interestEarned||0),0)));
+  set('dp_mat',     deps.filter(d=>d.status==='Maturing').length);
+  set('dp_active',  deps.filter(d=>d.status==='Active').length);
+
+  // Transactions
+  const txns = d.transactions || [];
+  const crSum = txns.filter(t=>t.type==='Credit').reduce((s,t)=>s+t.amount,0);
+  const drSum = txns.filter(t=>t.type==='Debit').reduce((s,t)=>s+t.amount,0);
+  set('tx_cr',    fmt(crSum));
+  set('tx_dr',    fmt(drSum));
+  set('tx_cnt',   fmtNum(txns.length));
+  set('tx_mpesa', fmtNum(txns.filter(t=>t.channel==='M-PESA').length));
+
+  // Defaulters
+  const defs = d.defaulters || [];
+  set('df_count', defs.length);
+  set('df_amt',   fmt(defs.reduce((s,d)=>s+d.overdueAmount,0)));
+  set('df_30',    defs.filter(d=>d.daysOverdue<=60).length);
+  set('df_60',    defs.filter(d=>d.daysOverdue>60).length);
+
+  // Charts
+  buildChart('ov_memberChart',  'ov_memberLabels',  d.memberGrowth||[],  '#2d6a4f',   'value');
+  buildChart('ov_savingsChart', 'ov_savingsLabels', d.savingsGrowth||[], '#c9a84c',   'amount');
+  buildChart('sv_chart',        'sv_labels',        d.savingsGrowth||[], '#2d6a4f',   'amount');
+
+  // Tables
+  buildMembersTable(d.members||[]);
+  buildPendingCards(d.pendingMembers||[]);
+  buildPendingPreview(d.pendingMembers||[]);
+  buildSuspendedTable(d.members?.filter(m=>m.status==='Suspended')||[]);
+  buildLoanApplCards(d.loanApplications||[]);
+  buildLoanApplTable(d.loanApplications||[]);
+  buildLoanApplPreview((d.loanApplications||[]).filter(a=>a.status==='Pending'));
+  buildActiveLoansTable(d.activeLoans||[]);
+  buildSavingsTable(d.memberSavings||[]);
+  buildSharesTable(d.memberShares||[]);
+  buildDepositsTable(d.deposits||[]);
+  buildTxnsTable(d.transactions||[]);
+  buildDefaultersTable(d.defaulters||[]);
+  buildAuditTable(d.auditLog||[]);
+  buildJournalTable(d.journalEntries||[]);
+  buildReports();
+  buildTimeline();
+}
+
+/* ════════════════════════════════════════
+   TABLE BUILDERS
+════════════════════════════════════════ */
+function buildMembersTable(rows) {
+  const tb = document.getElementById('tMembers');
+  if (!tb) return;
+  tb.innerHTML = rows.map((m,i) => `
+    <tr data-status="${m.status}" data-type="${m.accountType}">
+      <td style="color:var(--text-light)">${i+1}</td>
+      <td><strong style="font-family:monospace;font-size:12px">${m.memberNumber}</strong></td>
+      <td><strong>${m.firstName} ${m.lastName}</strong></td>
+      <td>${m.phone}</td>
+      <td style="font-size:12px">${m.email||'—'}</td>
+      <td>${m.accountType}</td>
+      <td>${fmt(m.savings||0)}</td>
+      <td>${m.shares||0} shares</td>
+      <td>${m.activeLoans||0}</td>
+      <td style="font-size:12px">${m.joinDate}</td>
+      <td><span class="pill ${m.status==='Active'?'active':m.status==='Pending'?'pending':m.status==='Suspended'?'suspended':'pending'}">${m.status}</span></td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn-view" onclick="showMember(${i})">View</button>
+        ${m.status==='Active'?`<button class="btn-sus"  onclick="suspendMember('${m.memberNumber}','${m.firstName}')">Suspend</button>`:''}
+        ${m.status==='Pending'?`<button class="btn-apr" onclick="approveMember('${m.memberNumber}','${m.firstName}')">Approve</button>`:''}
+        ${m.status==='Suspended'?`<button class="btn-apr" onclick="reinstateMember('${m.memberNumber}','${m.firstName}')">Reinstate</button>`:''}
+      </td>
+    </tr>
+  `).join('') || noData(12);
+  set('tMembersFoot', `${rows.length} members`);
+  window._members = rows;
+}
+
+function buildPendingCards(members) {
+  const el = document.getElementById('pendingCards');
+  if (!el) return;
+  el.innerHTML = members.map(m => `
+    <div class="mcard">
+      <div class="mav">${m.firstName[0]}${m.lastName[0]}</div>
+      <div class="minfo">
+        <strong>${m.firstName} ${m.lastName}</strong>
+        <span>${m.accountType} · ${m.phone} · Applied: ${m.joinDate}</span>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="pill pending">Awaiting Review</span>
+          ${m.idVerified   ? '<span class="pill active">ID ✓</span>' : '<span class="pill overdue">ID ✗</span>'}
+          ${m.phoneVerified? '<span class="pill active">Phone ✓</span>':'<span class="pill overdue">Phone ✗</span>'}
+          ${m.emailVerified? '<span class="pill active">Email ✓</span>':'<span class="pill overdue">Email ✗</span>'}
+          ${m.profileComplete?'<span class="pill active">Profile Submitted ✓</span>':'<span class="pill overdue">Profile Incomplete</span>'}
+        </div>
+      </div>
+      <div class="macts">
+        <button class="btn-view" onclick="showPendingDetail(${JSON.stringify(m).replace(/"/g,'&quot;')})">View Profile</button>
+        <button class="btn-apr" onclick="approveMember('${m.memberNumber}','${m.firstName}')">✓ Approve</button>
+        <button class="btn-rej" onclick="rejectMember('${m.memberNumber}','${m.firstName}')">✗ Reject</button>
+      </div>
+    </div>
+  `).join('') || '<div class="alert-box ok">✅ No pending applications. All members have been reviewed.</div>';
+}
+
+function buildPendingPreview(members) {
+  const el = document.getElementById('ov_pendingList');
+  if (!el) return;
+  el.innerHTML = members.slice(0,4).map(m => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(214,232,222,.4)">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent2);flex-shrink:0">${m.firstName[0]}${m.lastName[0]}</div>
+      <div style="flex:1"><strong style="font-size:13px;color:var(--text-dark)">${m.firstName} ${m.lastName}</strong><div style="font-size:11px;color:var(--text-light)">${m.accountType} · ${m.joinDate}</div></div>
+      <button class="btn-apr" onclick="approveMember('${m.memberNumber}','${m.firstName}')">Approve</button>
+    </div>
+  `).join('') || '<p style="color:var(--text-light);font-size:13px">No pending approvals</p>';
+}
+
+function buildLoanApplPreview(apps) {
+  const el = document.getElementById('ov_loanList');
+  if (!el) return;
+  el.innerHTML = apps.slice(0,3).map(a => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(214,232,222,.4)">
+      <span style="font-size:22px">📋</span>
+      <div style="flex:1">
+        <strong style="font-size:13px;color:var(--text-dark)">${a.memberName} — ${a.loanType}</strong>
+        <div style="font-size:11px;color:var(--text-light)">${fmt(a.amount)} · ${a.period} months · ${a.appliedDate}</div>
+      </div>
+      <button class="btn-apr" onclick="approveLoan('${a.ref}')">Approve</button>
+    </div>
+  `).join('') || '<p style="color:var(--text-light);font-size:13px">No pending loan applications</p>';
+}
+
+function buildSuspendedTable(rows) {
+  const tb = document.getElementById('tSuspended');
+  if (!tb) return;
+  tb.innerHTML = rows.map(m => `
+    <tr>
+      <td><strong style="font-family:monospace;font-size:12px">${m.memberNumber}</strong></td>
+      <td><strong>${m.firstName} ${m.lastName}</strong></td>
+      <td>${m.phone}</td>
+      <td>${m.suspensionReason||'Not specified'}</td>
+      <td>${m.suspendedOn||'—'}</td>
+      <td><button class="btn-apr" onclick="reinstateMember('${m.memberNumber}','${m.firstName}')">Reinstate</button></td>
+    </tr>
+  `).join('') || noData(6, 'No suspended members');
+}
+
+function buildLoanApplCards(apps) {
+  const el = document.getElementById('loanApplCards');
+  if (!el) return;
+  const pending = apps.filter(a=>a.status==='Pending');
+  el.innerHTML = pending.map(a => `
+    <div class="lacard">
+      <div class="lacard-hdr">
+        <div>
+          <strong style="font-size:16px;color:var(--green-deep)">${a.loanType}</strong>
+          <div style="font-size:12px;color:var(--text-light);margin-top:2px">Ref: ${a.ref} · Applicant: <strong>${a.memberName}</strong> (${a.memberNumber})</div>
+        </div>
+        <span class="pill pending">Pending Review</span>
+      </div>
+      <div class="lacard-grid">
+        <div class="lacard-item"><div class="lbl">Amount Requested</div><div class="val big">${fmt(a.amount)}</div></div>
+        <div class="lacard-item"><div class="lbl">Period</div><div class="val">${a.period} months</div></div>
+        <div class="lacard-item"><div class="lbl">Monthly Repayment</div><div class="val">${fmt(a.monthly)}</div></div>
+        <div class="lacard-item"><div class="lbl">Total Repayable</div><div class="val">${fmt(a.monthly*a.period)}</div></div>
+        <div class="lacard-item"><div class="lbl">Applied On</div><div class="val">${a.appliedDate}</div></div>
+      </div>
+      <div class="lacard-purpose"><strong>Purpose:</strong> ${a.purpose}</div>
+      <div style="background:rgba(45,106,79,.05);border-radius:7px;padding:9px 13px;font-size:13px;color:var(--text-mid);margin-bottom:12px">
+        <strong>Guarantor:</strong> ${a.guarantor} (${a.guarantorNo||'—'}) &nbsp;·&nbsp;
+        <strong>Member Savings:</strong> ${fmt(a.memberSavings||0)} &nbsp;·&nbsp;
+        <strong>Loan Eligibility:</strong> ${fmt((a.memberSavings||0)*3 + (a.memberShares||0)*5*1000)}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn-apr" onclick="approveLoan('${a.ref}','${a.memberName}')">✓ Approve Loan</button>
+        <button class="btn-rej" onclick="rejectLoan('${a.ref}','${a.memberName}')">✗ Reject</button>
+        <button class="btn-view" onclick="showLoanDetail(${JSON.stringify(a).replace(/"/g,'&quot;')})">View Full Details</button>
+        <span style="font-size:12px;color:var(--text-light);margin-left:auto">Processing fee: ${fmt(a.amount*0.02)}</span>
+      </div>
+    </div>
+  `).join('') || '';
+}
+
+function buildLoanApplTable(apps) {
+  const tb = document.getElementById('tLoanApps');
+  if (!tb) return;
+  tb.innerHTML = apps.map(a => `
+    <tr data-status="${a.status}">
+      <td><span style="font-family:monospace;font-size:11px">${a.ref}</span></td>
+      <td><strong>${a.memberName}</strong><br><span style="font-size:11px;color:var(--text-light)">${a.memberNumber}</span></td>
+      <td>${a.loanType}</td>
+      <td><strong>${fmt(a.amount)}</strong></td>
+      <td>${a.period} months</td>
+      <td>${fmt(a.monthly)}</td>
+      <td>${a.guarantor}</td>
+      <td style="font-size:12px">${a.appliedDate}</td>
+      <td><span class="pill ${a.status==='Approved'?'approved':a.status==='Rejected'?'rejected':'pending'}">${a.status}</span></td>
+      <td style="display:flex;gap:4px">
+        ${a.status==='Pending'?`<button class="btn-apr" onclick="approveLoan('${a.ref}','${a.memberName}')">Approve</button><button class="btn-rej" onclick="rejectLoan('${a.ref}','${a.memberName}')">Reject</button>`:`<button class="btn-view" onclick="showLoanDetail(${JSON.stringify(a).replace(/"/g,'&quot;')})">View</button>`}
+      </td>
+    </tr>
+  `).join('') || noData(10);
+  set('tLoanAppsFoot', `${apps.length} applications total`);
+}
+
+function buildActiveLoansTable(rows) {
+  const tb = document.getElementById('tActiveLoans');
+  if (!tb) return;
+  tb.innerHTML = rows.map(l => {
+    const pct = l.principalAmount>0 ? Math.round(((l.principalAmount-l.outstandingBalance)/l.principalAmount)*100) : 0;
+    return `
+    <tr data-status="${l.status}">
+      <td><span style="font-family:monospace;font-size:11px">${l.loanRef}</span></td>
+      <td><strong>${l.memberName}</strong><br><span style="font-size:11px;color:var(--text-light)">${l.memberNumber}</span></td>
+      <td>${l.loanType}</td>
+      <td>${fmt(l.principalAmount)}</td>
+      <td><strong style="color:var(--red)">${fmt(l.outstandingBalance)}</strong></td>
+      <td>${fmt(l.principalAmount-l.outstandingBalance)}</td>
+      <td>${fmt(l.monthlyInstalment)}</td>
+      <td style="font-size:12px">${l.nextPaymentDate}</td>
+      <td>
+        <div class="prog-bar" style="width:80px;margin:0"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <span style="font-size:11px;color:var(--text-light)">${pct}%</span>
+      </td>
+      <td><span class="pill ${l.status==='Active'?'active':'overdue'}">${l.status}</span></td>
+      <td style="display:flex;gap:4px">
+        <button class="btn-view" onclick="showActiveLoanDetail(${JSON.stringify(l).replace(/"/g,'&quot;')})">View</button>
+        ${l.status==='Overdue'?`<button class="btn-sus" onclick="toast('Sending reminder to ${l.memberName}...','warn')">SMS</button>`:''}
+      </td>
+    </tr>`;
+  }).join('') || noData(11);
+  set('tActiveLoansFoot', `${rows.length} active loans`);
+}
+
+function buildSavingsTable(rows) {
+  const tb = document.getElementById('tSavings');
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td><span style="font-family:monospace;font-size:11px">${r.memberNumber}</span></td>
+      <td><strong>${r.name}</strong></td>
+      <td>${fmt(r.ordinary||0)}</td>
+      <td>${fmt(r.biashara||0)}</td>
+      <td>${fmt(r.elimu||0)}</td>
+      <td>${fmt(r.holiday||0)}</td>
+      <td>${fmt(r.investment||0)}</td>
+      <td><strong>${fmt((r.ordinary||0)+(r.biashara||0)+(r.elimu||0)+(r.holiday||0)+(r.investment||0))}</strong></td>
+      <td style="font-size:12px">${r.lastDeposit}</td>
+      <td><span class="pill ${r.contributing?'active':'overdue'}">${r.contributing?'Regular':'Irregular'}</span></td>
+    </tr>
+  `).join('') || noData(10);
+  set('tSavingsFoot', `${rows.length} members`);
+}
+
+function buildSharesTable(rows) {
+  const tb = document.getElementById('tShares');
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td><span style="font-family:monospace;font-size:11px">${r.memberNumber}</span></td>
+      <td><strong>${r.name}</strong></td>
+      <td>${fmtNum(r.shares)}</td>
+      <td>${fmt(r.shares*1000)}</td>
+      <td>${fmt(r.dividends||0)}</td>
+      <td>
+        <button class="btn-view" onclick="toast('Viewing ${r.name} share details...')">View</button>
+      </td>
+    </tr>
+  `).join('') || noData(6);
+}
+
+function buildDepositsTable(rows) {
+  const tb = document.getElementById('tDeposits');
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td><strong>${r.memberName}</strong><br><span style="font-size:11px;color:var(--text-light)">${r.memberNumber}</span></td>
+      <td><strong>${fmt(r.amount)}</strong></td>
+      <td>${r.rate}% p.a.</td>
+      <td style="font-size:12px">${r.startDate}</td>
+      <td style="font-size:12px">${r.maturityDate}</td>
+      <td>${fmt(r.interestEarned||0)}</td>
+      <td><span class="pill ${r.status==='Active'?'active':r.status==='Maturing'?'pending':'matured'}">${r.status}</span></td>
+      <td><button class="btn-view" onclick="toast('Viewing deposit certificate...')">Certificate</button></td>
+    </tr>
+  `).join('') || noData(8);
+}
+
+function buildTxnsTable(rows) {
+  const tb = document.getElementById('tTxns');
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr data-type="${r.type}">
+      <td style="font-size:12px">${r.date}<br><span style="color:var(--text-light)">${r.time||''}</span></td>
+      <td><span style="font-family:monospace;font-size:11px">${r.ref}</span></td>
+      <td><strong>${r.memberName}</strong><br><span style="font-size:11px;color:var(--text-light)">${r.memberNumber}</span></td>
+      <td style="max-width:200px">${r.description}</td>
+      <td><span class="pill ${r.type==='Credit'?'credit':'debit'}">${r.type}</span></td>
+      <td><strong class="${r.type==='Credit'?'':''}">
+        <span style="color:${r.type==='Credit'?'#1a6b3c':'#c0392b'}">${r.type==='Credit'?'+':'-'}${fmt(r.amount)}</span>
+      </strong></td>
+      <td>${r.channel}</td>
+      <td style="font-size:12px">${r.postedBy||'System'}</td>
+    </tr>
+  `).join('') || noData(8);
+  set('tTxnsFoot', `${rows.length} transactions`);
+}
+
+function buildDefaultersTable(rows) {
+  const tb = document.getElementById('tDefaulters');
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td><strong>${r.memberName}</strong><br><span style="font-size:11px;color:var(--text-light)">${r.memberNumber} · ${r.phone}</span></td>
+      <td><span style="font-family:monospace;font-size:11px">${r.loanRef}</span></td>
+      <td>${r.loanType}</td>
+      <td><strong style="color:var(--red)">${fmt(r.overdueAmount)}</strong></td>
+      <td><span class="pill ${r.daysOverdue>60?'overdue':'pending'}">${r.daysOverdue} days</span></td>
+      <td style="font-size:12px">${r.lastPayment}</td>
+      <td>${fmt(r.outstandingBalance)}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn-view" onclick="toast('Viewing ${r.memberName} loan details...')">View</button>
+        <button class="btn-sus" onclick="toast('Sending reminder to ${r.memberName}...','warn')">SMS</button>
+      </td>
+    </tr>
+  `).join('') || noData(8, 'No defaulters — all loans are current!');
+  set('tDefaultersFoot', `${rows.length} defaulters · Total at risk: ${fmt(rows.reduce((s,r)=>s+r.overdueAmount,0))}`);
+}
+
+function buildAuditTable(rows) {
+  const tb = document.getElementById('tAudit');
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr data-action="${r.action}">
+      <td style="font-size:12px;white-space:nowrap">${r.timestamp}</td>
+      <td>${r.user}</td>
+      <td><strong>${r.action}</strong></td>
+      <td style="max-width:250px;font-size:13px">${r.details}</td>
+      <td>${r.memberNumber||'—'}</td>
+      <td><span style="font-family:monospace;font-size:11px">${r.ip}</span></td>
+    </tr>
+  `).join('') || noData(6);
+  set('tAuditFoot', `${rows.length} audit entries`);
+}
+
+function buildJournalTable(rows) {
+  const tb = document.getElementById('tJournalEntries');
+  if (!tb) return;
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-size:12px">${r.date}</td>
+      <td>${r.memberNumber}</td>
+      <td>${r.type}</td>
+      <td>${fmt(r.amount)}</td>
+      <td>${r.postedBy}</td>
+    </tr>
+  `).join('') || noData(5, 'No manual entries yet');
+}
+
+function buildReports() {
+  const el = document.getElementById('reportsList');
+  if (!el) return;
+  const reports = [
+    {title:'Member Register',            sub:'Full list of all SACCO members with status',         ico:'👥'},
+    {title:'Monthly Savings Report',     sub:'Savings inflow by member — November 2024',           ico:'💰'},
+    {title:'Loan Portfolio Report',      sub:'Active, overdue, and settled loans — All time',      ico:'📋'},
+    {title:'Share Capital Report',       sub:'Share holdings and dividend allocation summary',     ico:'📈'},
+    {title:'Fixed Deposit Register',     sub:'All fixed deposits and maturity schedule',           ico:'🏦'},
+    {title:'Full Transaction Ledger',    sub:'Complete credits and debits — November 2024',        ico:'🔁'},
+    {title:'Defaulters Report',          sub:'Members with overdue loan repayments',               ico:'⚠️'},
+    {title:'Balance Sheet',             sub:'SACCO assets, liabilities and net worth',            ico:'🏛️'},
+    {title:'Income & Expenditure',       sub:'Revenue vs expenses — FY 2023/24',                  ico:'📊'},
+    {title:'SASRA Regulatory Report',   sub:'Quarterly regulatory filing — Q3 2024',              ico:'📑'},
+    {title:'Annual Financial Statements',sub:'Balance sheet & income — FY 2023/24',               ico:'📁'},
+    {title:'Dividend Distribution',      sub:'Dividends paid to all members — FY 2023/24',        ico:'🎁'},
+    {title:'AGM Report Pack',           sub:'All reports for Annual General Meeting',             ico:'🗂️'},
+    {title:'KRA Tax Statement',         sub:'Tax filing support for members — FY 2023/24',       ico:'📝'},
+  ];
+  el.innerHTML = reports.map(r => `
+    <div class="rcard">
+      <div class="rcard-info">
+        <span class="rcard-ico">${r.ico}</span>
+        <div>
+          <div class="rcard-title">${r.title}</div>
+          <div class="rcard-sub">${r.sub}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-view" onclick="toast('Previewing ${r.title}...')">Preview</button>
+        <button class="btn btn-green btn-sm" onclick="toast('Downloading ${r.title} as PDF...')">⬇ PDF</button>
+        <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--border)" onclick="toast('Downloading ${r.title} as Excel...')">⬇ Excel</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function buildTimeline() {
+  const el = document.getElementById('ov_timeline');
+  if (!el) return;
+  const events = [
+    {date:'30 Nov 2024', label:'Monthly loan repayments due',        dot:'var(--red)'},
+    {date:'15 Dec 2024', label:'Annual General Meeting (AGM)',        dot:'var(--accent)'},
+    {date:'20 Dec 2024', label:'Dividend payment to all members',     dot:'var(--green-mid)'},
+    {date:'31 Dec 2024', label:'Financial year end — FY 2024/25',    dot:'var(--blue)'},
+    {date:'31 Jan 2025', label:'SASRA quarterly regulatory filing',   dot:'var(--purple)'},
+    {date:'15 Mar 2025', label:'3 fixed deposits maturing',           dot:'var(--teal)'},
+  ];
+  el.innerHTML = events.map(e => `
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${e.dot}"></div>
+      <div class="tl-body">
+        <strong>${e.label}</strong>
+        <span>${e.date}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ════════════════════════════════════════
+   MINI CHART
+════════════════════════════════════════ */
+function buildChart(chartId, labelsId, data, color, valKey) {
+  const chart  = document.getElementById(chartId);
+  const labels = document.getElementById(labelsId);
+  if (!chart || !data.length) return;
+  const max = Math.max(...data.map(d => d[valKey] || 0)) || 1;
+  const shades = ['#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2','#b7e4c7'];
+  chart.innerHTML = data.map((d,i) => `
+    <div class="bar" title="${d.month}: ${fmtNum(d[valKey]||0)}"
+      style="height:${Math.round(((d[valKey]||0)/max)*100)}%;background:${color};opacity:${0.45+(i/data.length)*0.55}">
+    </div>
+  `).join('');
+  if (labels) labels.innerHTML = data.map(d => `<div class="chart-lbl">${(d.month||'').substring(0,3)}</div>`).join('');
+}
+
+/* ════════════════════════════════════════
+   MODALS
+════════════════════════════════════════ */
+function showMember(idx) {
+  const m = window._members?.[idx];
+  if (!m) return;
+  document.getElementById('modalTitle').textContent = `${m.firstName} ${m.lastName}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="g2" style="margin-bottom:16px">
+      <div>
+        <div class="irow"><span class="lbl">Member No.</span><span class="val">${m.memberNumber}</span></div>
+        <div class="irow"><span class="lbl">Phone</span><span class="val">${m.phone}</span></div>
+        <div class="irow"><span class="lbl">Email</span><span class="val">${m.email||'—'}</span></div>
+        <div class="irow"><span class="lbl">National ID</span><span class="val">${m.nationalId||'—'}</span></div>
+        <div class="irow"><span class="lbl">KRA PIN</span><span class="val">${m.kraPin||'—'}</span></div>
+      </div>
+      <div>
+        <div class="irow"><span class="lbl">Account Type</span><span class="val">${m.accountType}</span></div>
+        <div class="irow"><span class="lbl">Status</span><span class="val"><span class="pill ${m.status==='Active'?'active':'pending'}">${m.status}</span></span></div>
+        <div class="irow"><span class="lbl">Total Savings</span><span class="val">${fmt(m.savings||0)}</span></div>
+        <div class="irow"><span class="lbl">Shares</span><span class="val">${m.shares||0}</span></div>
+        <div class="irow"><span class="lbl">Active Loans</span><span class="val">${m.activeLoans||0}</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${m.status==='Active'?`<button class="btn-sus" onclick="suspendMember('${m.memberNumber}','${m.firstName}');closeModal()">Suspend Account</button>`:''}
+      ${m.status==='Suspended'?`<button class="btn-apr" onclick="reinstateMember('${m.memberNumber}','${m.firstName}');closeModal()">Reinstate Account</button>`:''}
+      <button class="btn btn-green btn-sm" onclick="toast('Downloading statement for ${m.firstName}...')">⬇ Account Statement</button>
+      <button class="btn-view" onclick="closeModal()">Close</button>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function showPendingDetail(m) {
+  document.getElementById('modalTitle').textContent = `${m.firstName} ${m.lastName} — Application Review`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="g2 mb14">
+      <div>
+        <div class="irow"><span class="lbl">Member No.</span><span class="val">${m.memberNumber}</span></div>
+        <div class="irow"><span class="lbl">Account Type</span><span class="val">${m.accountType}</span></div>
+        <div class="irow"><span class="lbl">Phone</span><span class="val">${m.phone}</span></div>
+        <div class="irow"><span class="lbl">Applied</span><span class="val">${m.joinDate}</span></div>
+      </div>
+      <div>
+        <div class="irow"><span class="lbl">ID Verified</span><span class="val">${m.idVerified?'✓ Yes':'✗ No'}</span></div>
+        <div class="irow"><span class="lbl">Phone Verified</span><span class="val">${m.phoneVerified?'✓ Yes':'✗ No'}</span></div>
+        <div class="irow"><span class="lbl">Email Verified</span><span class="val">${m.emailVerified?'✓ Yes':'✗ No'}</span></div>
+        <div class="irow"><span class="lbl">Profile Complete</span><span class="val">${m.profileComplete?'✓ Yes':'✗ No'}</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-apr" onclick="approveMember('${m.memberNumber}','${m.firstName}');closeModal()">✓ Approve</button>
+      <button class="btn-rej" onclick="rejectMember('${m.memberNumber}','${m.firstName}');closeModal()">✗ Reject</button>
+      <button class="btn-view" onclick="closeModal()">Close</button>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function showLoanDetail(a) {
+  document.getElementById('modalTitle').textContent = `Loan — ${a.ref}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="g2 mb14">
+      <div>
+        <div class="irow"><span class="lbl">Applicant</span><span class="val">${a.memberName}</span></div>
+        <div class="irow"><span class="lbl">Member No.</span><span class="val">${a.memberNumber}</span></div>
+        <div class="irow"><span class="lbl">Loan Type</span><span class="val">${a.loanType}</span></div>
+        <div class="irow"><span class="lbl">Amount</span><span class="val">${fmt(a.amount)}</span></div>
+        <div class="irow"><span class="lbl">Period</span><span class="val">${a.period} months</span></div>
+      </div>
+      <div>
+        <div class="irow"><span class="lbl">Monthly Repayment</span><span class="val">${fmt(a.monthly)}</span></div>
+        <div class="irow"><span class="lbl">Total Repayable</span><span class="val">${fmt(a.monthly*a.period)}</span></div>
+        <div class="irow"><span class="lbl">Processing Fee (2%)</span><span class="val">${fmt(a.amount*0.02)}</span></div>
+        <div class="irow"><span class="lbl">Guarantor</span><span class="val">${a.guarantor}</span></div>
+        <div class="irow"><span class="lbl">Status</span><span class="val"><span class="pill ${a.status==='Approved'?'approved':'pending'}">${a.status}</span></span></div>
+      </div>
+    </div>
+    <div class="alert-box info mb14"><strong>Purpose:</strong> ${a.purpose}</div>
+    ${a.status==='Pending'?`<div style="display:flex;gap:8px"><button class="btn-apr" onclick="approveLoan('${a.ref}','${a.memberName}');closeModal()">✓ Approve</button><button class="btn-rej" onclick="rejectLoan('${a.ref}','${a.memberName}');closeModal()">✗ Reject</button><button class="btn-view" onclick="closeModal()">Close</button></div>`:
+    `<button class="btn-view" onclick="closeModal()">Close</button>`}
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function showActiveLoanDetail(l) {
+  document.getElementById('modalTitle').textContent = `Loan ${l.loanRef} — ${l.memberName}`;
+  const pct = l.principalAmount>0 ? Math.round(((l.principalAmount-l.outstandingBalance)/l.principalAmount)*100) : 0;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="g2 mb14">
+      <div>
+        <div class="irow"><span class="lbl">Loan Type</span><span class="val">${l.loanType}</span></div>
+        <div class="irow"><span class="lbl">Principal</span><span class="val">${fmt(l.principalAmount)}</span></div>
+        <div class="irow"><span class="lbl">Outstanding</span><span class="val" style="color:var(--red)">${fmt(l.outstandingBalance)}</span></div>
+        <div class="irow"><span class="lbl">Repaid</span><span class="val">${fmt(l.principalAmount-l.outstandingBalance)}</span></div>
+      </div>
+      <div>
+        <div class="irow"><span class="lbl">Monthly Instalment</span><span class="val">${fmt(l.monthlyInstalment)}</span></div>
+        <div class="irow"><span class="lbl">Next Payment Due</span><span class="val">${l.nextPaymentDate}</span></div>
+        <div class="irow"><span class="lbl">Disbursed On</span><span class="val">${l.disbursementDate||'—'}</span></div>
+        <div class="irow"><span class="lbl">Status</span><span class="val"><span class="pill ${l.status==='Active'?'active':'overdue'}">${l.status}</span></span></div>
+      </div>
+    </div>
+    <div class="mb14"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-light)"><span>${pct}% repaid</span><span>${100-pct}% remaining</span></div></div>
+    <div style="display:flex;gap:8px">
+      ${l.status==='Overdue'?`<button class="btn-sus" onclick="toast('Sending SMS reminder to ${l.memberName}...','warn');closeModal()">Send SMS Reminder</button>`:''}
+      <button class="btn btn-green btn-sm" onclick="toast('Downloading loan statement...')">⬇ Loan Statement</button>
+      <button class="btn-view" onclick="closeModal()">Close</button>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+/* ════════════════════════════════════════
+   ACTIONS
+════════════════════════════════════════ */
+async function approveMember(no, name) {
+  if (!confirm(`Approve membership for ${name}? This will activate their account and send a welcome email.`)) return;
+  try { await post('/admin/member/approve', { memberNumber: no }); } catch {}
+  toast(`✓ ${name}'s membership approved! Welcome email sent.`);
+  loadAll();
+}
+
+async function rejectMember(no, name) {
+  const reason = prompt(`Reason for rejecting ${name}'s application (will be emailed to them):`);
+  if (!reason) return;
+  try { await post('/admin/member/reject', { memberNumber: no, reason }); } catch {}
+  toast(`${name}'s application has been rejected. Notification sent.`, 'warn');
+  loadAll();
+}
+
+async function suspendMember(no, name) {
+  const reason = prompt(`Reason for suspending ${name}'s account:`);
+  if (!reason) return;
+  try { await post('/admin/member/suspend', { memberNumber: no, reason }); } catch {}
+  toast(`${name}'s account has been suspended.`, 'warn');
+  loadAll();
+}
+
+async function reinstateMember(no, name) {
+  if (!confirm(`Reinstate ${name}'s account?`)) return;
+  try { await post('/admin/member/reinstate', { memberNumber: no }); } catch {}
+  toast(`${name}'s account reinstated successfully.`);
+  loadAll();
+}
+
+async function approveLoan(ref, name) {
+  if (!confirm(`Approve loan ${ref} for ${name||'this member'}? Disbursement will be processed within 24 hours.`)) return;
+  try { await post('/admin/loan/approve', { loanRef: ref }); } catch {}
+  toast(`✓ Loan ${ref} approved! Disbursement processing...`);
+  loadAll();
+}
+
+async function rejectLoan(ref, name) {
+  const reason = prompt(`Reason for rejecting loan ${ref} for ${name||'this member'}:`);
+  if (!reason) return;
+  try { await post('/admin/loan/reject', { loanRef: ref, reason }); } catch {}
+  toast(`Loan ${ref} rejected. Notification sent to member.`, 'warn');
+  loadAll();
+}
+
+function postDividends() {
+  const fy = document.getElementById('div_fy')?.value;
+  const rate = parseFloat(document.getElementById('div_rate')?.value);
+  if (!fy || !rate) { toast('Please enter FY and rate', 'err'); return; }
+  if (!confirm(`Post ${rate}% dividends for FY ${fy} to ALL members?\n\nThis cannot be undone.`)) return;
+  toast(`✓ Dividends of ${rate}% posted to all members for FY ${fy}!`);
+}
+
+function calcDiv() {
+  const rate = parseFloat(document.getElementById('div_rate')?.value) || 0;
+  const cap = 18500000; // from demo
+  const payout = cap * (rate/100);
+  const el = document.getElementById('div_preview');
+  if (el) el.innerHTML = `💡 At ${rate}%, total dividend payout = <strong>${fmt(payout)}</strong> (based on share capital of ${fmt(cap)})`;
+}
+
+function addShares() {
+  const no = document.getElementById('sh_memno')?.value;
+  const qty = document.getElementById('sh_qty')?.value;
+  if (!no || !qty) { toast('Please fill in member number and share quantity', 'err'); return; }
+  toast(`✓ ${qty} shares added to member ${no}`);
+}
+
+function postEntry() {
+  const memno = document.getElementById('je_memno')?.value;
+  const type  = document.getElementById('je_type')?.value;
+  const amt   = document.getElementById('je_amount')?.value;
+  const code  = document.getElementById('je_code')?.value;
+  if (!memno||!type||!amt) { toast('Please fill all required fields', 'err'); return; }
+  if (!code) { toast('Admin confirmation code is required', 'err'); return; }
+  if (!confirm(`Post ${type} of ${fmt(parseFloat(amt))} for member ${memno}?\n\nThis action will be logged.`)) return;
+  toast('✓ Journal entry posted and logged in audit trail');
+}
+
+function sendSMS() {
+  const msg = document.getElementById('sms_msg')?.value;
+  if (!msg) { toast('Message is required', 'err'); return; }
+  if (!confirm('Send this SMS to selected members?')) return;
+  toast('✓ SMS sent via Africa\'s Talking gateway');
+}
+
+function sendEmail() {
+  const sub  = document.getElementById('email_sub')?.value;
+  const body = document.getElementById('email_body')?.value;
+  if (!sub||!body) { toast('Subject and message body are required', 'err'); return; }
+  toast('✓ Email sent to selected members');
+}
+
+function genReport() {
+  const from = document.getElementById('rpt_from')?.value;
+  const to   = document.getElementById('rpt_to')?.value;
+  const type = document.getElementById('rpt_type')?.value;
+  if (!from||!to||!type) { toast('Please fill all report fields', 'err'); return; }
+  toast(`✓ Generating "${type}" from ${from} to ${to}...`);
+}
+
+function sendBulkReminder() {
+  if (!confirm('Send SMS reminder to all defaulters?')) return;
+  toast('✓ SMS reminders sent to all defaulters', 'warn');
+}
+
+function loadSmsTemplate(key) {
+  const templates = {
+    loan_due: 'Dear {name}, your loan repayment of Ksh {amount} is due on {date}. Pay via M-PESA Pay Bill 4076949, A/c: {member_no}. Call 011 49 149 49 for help.',
+    welcome:  'Welcome to Stable Fortunes SACCO, {name}! Your membership {member_no} is now active. Start saving today. Dial *844# or visit stablefortunes.com. Thank you!',
+    dividend: 'Dear {name}, your FY 2023/24 dividend of Ksh {amount} has been credited to your account. Thank you for being a valued Stable Fortunes SACCO member.',
+    agm:      'Dear {name}, the Stable Fortunes SACCO AGM is on 15th December 2024 at Corner House, Kimathi Street. Your attendance is important. RSVP: 011 49 149 49.',
+    deposit:  'Dear {name}, your deposit of Ksh {amount} has been received and credited to your {account} account. New balance: Ksh {balance}. Thank you.',
+  };
+  const el = document.getElementById('sms_msg');
+  if (el && templates[key]) el.value = templates[key];
+}
+
+function loadEmailTemplate(key) {
+  const templates = {
+    welcome:   'Dear {name},\n\nWelcome to Stable Fortunes SACCO Society! Your membership application has been approved.\n\nYour Member Number: {member_no}\n\nTo activate your account, please pay the entrance fee of Ksh 1,000 via M-PESA Pay Bill 4076949, Account: {member_no} Entrance.\n\nThank you for joining us.\n\nStable Fortunes SACCO Management',
+    dividend:  'Dear {name},\n\nWe are pleased to inform you that your dividend for FY 2023/24 has been processed.\n\nDividend Rate: 12%\nYour Dividend: Ksh {amount}\n\nThank you for your continued trust in Stable Fortunes SACCO.\n\nManagement',
+    loan_approve: 'Dear {name},\n\nYour loan application (Ref: {loan_ref}) has been APPROVED.\n\nApproved Amount: Ksh {amount}\nDisbursement: Within 24 hours via {channel}\n\nFor queries, call 011 49 149 49.\n\nStable Fortunes SACCO',
+    agm:       'Dear {name},\n\nYou are cordially invited to the Stable Fortunes SACCO Annual General Meeting (AGM).\n\nDate: 15th December 2024\nVenue: Corner House, 6th Floor, Kimathi Street, Nairobi\nTime: 9:00 AM\n\nAgenda: Financial review, elections, and 2025 plans.\n\nYour attendance is critical.',
+    statement: 'Dear {name},\n\nYour account statement for November 2024 is now ready. Log in to your member portal at stablefortunes.com to view and download your statement.\n\nMember No: {member_no}\n\nStable Fortunes SACCO',
+  };
+  const el = document.getElementById('email_body');
+  if (el && templates[key]) el.value = templates[key];
+}
+
+/* ════════════════════════════════════════
+   TABLE SEARCH & FILTER
+════════════════════════════════════════ */
+function searchT(id, q) {
+  const rows = document.querySelectorAll(`#${id} tr`);
+  rows.forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none'; });
+}
+
+function filterT(id, val, attr) {
+  const rows = document.querySelectorAll(`#${id} tr`);
+  rows.forEach(r => {
+    if (!val) { r.style.display = ''; return; }
+    const match = attr ? r.dataset[attr]?.includes(val) : r.textContent.includes(val);
+    r.style.display = match ? '' : 'none';
+  });
+}
+
+function exportCSV(tableId, filename) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const rows = [...table.querySelectorAll('tr')];
+  const csv  = rows.map(r => [...r.querySelectorAll('td,th')].map(c => `"${c.textContent.replace(/"/g,'').trim()}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = filename + '-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast(`✓ ${filename}.csv downloaded`);
+}
+
+function paginate(tableId, dir) { /* pagination stub for full implementation */ }
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast-msg' + (type==='err'?' err':type==='warn'?' warn':'');
+  el.innerHTML = (type==='err'?'❌':type==='warn'?'⚠️':'✅') + ' ' + msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+const fmt = n => 'Ksh ' + Number(n).toLocaleString('en-KE', {minimumFractionDigits:0, maximumFractionDigits:0});
+const fmtNum = n => Number(n).toLocaleString('en-KE');
+const fmtK = n => {
+  if (n >= 1e9) return 'Ksh ' + (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return 'Ksh ' + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return 'Ksh ' + (n/1e3).toFixed(0) + 'K';
+  return fmt(n);
+};
+const noData = (cols, msg='No records found') => `<tr><td colspan="${cols}" style="text-align:center;padding:28px;color:var(--text-light)">${msg}</td></tr>`;
+
+async function post(path, body) {
+  return fetch(API + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+    body: JSON.stringify(body)
+  }).then(r => r.json());
+}
+
+function logout() { sessionStorage.clear(); window.location.href = 'auth.html'; }
+
+/* ════════════════════════════════════════
+   DEMO DATA
+════════════════════════════════════════ */
+function demo() {
+  return {
+    stats: {
+      totalMembers:1342, activeMembers:1316, pendingApprovals:4, suspendedMembers:2,
+      totalSavings:48650000, loanPortfolio:32100000, shareCapital:18500000,
+      totalAssets:82000000, totalLiabilities:35000000, pendingLoanApps:3,
+      monthlyInflow:4200000, contributingMembers:1289, defaulters:12, overdueLoans:12,
+      totalShares:18500, totalDividendsPaid:2220000, interestAccrued:1350000,
+    },
+    savingsByType: { ordinary:28500000, biashara:8200000, elimu:3100000, holiday:2400000, investment:5200000, children:750000, retirement:500000 },
+    memberGrowth: [
+      {month:'Jan',value:1280},{month:'Feb',value:1285},{month:'Mar',value:1292},{month:'Apr',value:1298},
+      {month:'May',value:1305},{month:'Jun',value:1310},{month:'Jul',value:1315},{month:'Aug',value:1320},
+      {month:'Sep',value:1325},{month:'Oct',value:1330},{month:'Nov',value:1342},
+    ],
+    savingsGrowth: [
+      {month:'Jun',amount:38000000},{month:'Jul',amount:40100000},{month:'Aug',amount:42500000},
+      {month:'Sep',amount:44200000},{month:'Oct',amount:46800000},{month:'Nov',amount:48650000},
+    ],
+    members: [
+      {memberNumber:'SF-2024-000042',firstName:'Jane',   lastName:'Mwangi',  phone:'0712345678',email:'jane@email.com',  nationalId:'12345678',kraPin:'A012345678P',accountType:'Ordinary',   savings:42500, shares:15, activeLoans:2, status:'Active',   joinDate:'15 Jan 2024'},
+      {memberNumber:'SF-2024-000041',firstName:'Peter',  lastName:'Kamau',   phone:'0722111222',email:'peter@email.com', nationalId:'23456789',kraPin:'B023456789Q',accountType:'Biashara',   savings:85000, shares:30, activeLoans:1, status:'Active',   joinDate:'12 Jan 2024'},
+      {memberNumber:'SF-2024-000040',firstName:'Grace',  lastName:'Otieno',  phone:'0733222333',email:'grace@email.com', nationalId:'34567890',kraPin:'C034567890R',accountType:'Investment',  savings:120000,shares:50, activeLoans:0, status:'Active',   joinDate:'20 Dec 2023'},
+      {memberNumber:'SF-2024-000039',firstName:'James',  lastName:'Mutua',   phone:'0744333444',email:'james@email.com', nationalId:'45678901',kraPin:'D045678901S',accountType:'Ordinary',   savings:28000, shares:10, activeLoans:1, status:'Active',   joinDate:'05 Dec 2023'},
+      {memberNumber:'SF-2024-000038',firstName:'Sarah',  lastName:'Njoroge', phone:'0755444555',email:'sarah@email.com', nationalId:'56789012',kraPin:'E056789012T',accountType:'Elimu',      savings:15000, shares:5,  activeLoans:0, status:'Active',   joinDate:'10 Nov 2023'},
+      {memberNumber:'SF-2024-000037',firstName:'Joseph', lastName:'Kariuki', phone:'0766555666',email:'joe@email.com',   nationalId:'67890123',kraPin:'F067890123U',accountType:'Ordinary',   savings:55000, shares:20, activeLoans:1, status:'Active',   joinDate:'01 Nov 2023'},
+      {memberNumber:'SF-2024-000036',firstName:'Ann',    lastName:'Waweru',  phone:'0777666777',email:'ann@email.com',   nationalId:'78901234',kraPin:'G078901234V',accountType:'Retirement', savings:200000,shares:80, activeLoans:0, status:'Active',   joinDate:'15 Oct 2023'},
+      {memberNumber:'SF-2024-000049',firstName:'David',  lastName:'Ochieng', phone:'0788777888',email:'david@email.com', nationalId:'89012345',kraPin:'H089012345W',accountType:'Ordinary',   savings:0,     shares:0,  activeLoans:0, status:'Pending',  joinDate:'15 Nov 2024'},
+      {memberNumber:'SF-2024-000050',firstName:'Mary',   lastName:'Wanjiku', phone:'0799888999',email:'mary@email.com',  nationalId:'90123456',kraPin:'I090123456X',accountType:'Biashara',   savings:0,     shares:0,  activeLoans:0, status:'Pending',  joinDate:'14 Nov 2024'},
+      {memberNumber:'SF-2024-000035',firstName:'Tom',    lastName:'Omondi',  phone:'0711000111',email:'tom@email.com',   nationalId:'01234567',kraPin:'J001234567Y',accountType:'Ordinary',   savings:8000,  shares:3,  activeLoans:2, status:'Suspended',joinDate:'01 Sep 2023',suspensionReason:'Repeated loan default',suspendedOn:'01 Nov 2024'},
+    ],
+    pendingMembers: [
+      {memberNumber:'SF-2024-000049',firstName:'David',  lastName:'Ochieng', phone:'0788777888',accountType:'Ordinary Account', joinDate:'15 Nov 2024',idVerified:true, phoneVerified:true, emailVerified:true, profileComplete:true},
+      {memberNumber:'SF-2024-000050',firstName:'Mary',   lastName:'Wanjiku', phone:'0799888999',accountType:'Biashara Account', joinDate:'14 Nov 2024',idVerified:true, phoneVerified:true, emailVerified:true, profileComplete:true},
+      {memberNumber:'SF-2024-000051',firstName:'Samuel', lastName:'Kariuki', phone:'0788111222',accountType:'Investment Account',joinDate:'12 Nov 2024',idVerified:true, phoneVerified:true, emailVerified:false,profileComplete:false},
+      {memberNumber:'SF-2024-000052',firstName:'Ruth',   lastName:'Achieng', phone:'0799222333',accountType:'Ordinary Account', joinDate:'10 Nov 2024',idVerified:false,phoneVerified:true, emailVerified:true, profileComplete:false},
+    ],
+    loanApplications: [
+      {ref:'SF-LN-2024-012',memberName:'Peter Kamau', memberNumber:'SF-2024-000041',loanType:'Business Loan',  amount:200000,period:24,monthly:9428, appliedDate:'16 Nov 2024',status:'Pending', purpose:'Purchase delivery van for business',       guarantor:'Grace Otieno',guarantorNo:'SF-2024-000040',memberSavings:85000,memberShares:30},
+      {ref:'SF-LN-2024-011',memberName:'Grace Otieno',memberNumber:'SF-2024-000040',loanType:'Development Loan',amount:150000,period:18,monthly:9163,appliedDate:'14 Nov 2024',status:'Pending', purpose:'Home renovation and expansion',            guarantor:'Joseph Kariuki',guarantorNo:'SF-2024-000037',memberSavings:120000,memberShares:50},
+      {ref:'SF-LN-2024-010',memberName:'James Mutua', memberNumber:'SF-2024-000039',loanType:'Emergency Loan', amount:50000, period:12,monthly:4424, appliedDate:'10 Nov 2024',status:'Pending', purpose:'Medical emergency — urgent hospital bills', guarantor:'Sarah Njoroge',guarantorNo:'SF-2024-000038',memberSavings:28000,memberShares:10},
+      {ref:'SF-LN-2024-009',memberName:'Jane Mwangi', memberNumber:'SF-2024-000042',loanType:'Personal Loan',  amount:50000, period:12,monthly:4424, appliedDate:'15 Jan 2024',status:'Approved',purpose:'Business working capital',                  guarantor:'Peter Kamau',  guarantorNo:'SF-2024-000041',memberSavings:42500,memberShares:15},
+      {ref:'SF-LN-2024-008',memberName:'Sarah Njoroge',memberNumber:'SF-2024-000038',loanType:'Elimu Loan',   amount:30000, period:10,monthly:3158, appliedDate:'01 Oct 2024',status:'Rejected',purpose:'University school fees — 2024/25',          guarantor:'James Mutua',  guarantorNo:'SF-2024-000039',memberSavings:15000,memberShares:5},
+    ],
+    activeLoans: [
+      {loanRef:'SF-LN-2024-009',memberName:'Jane Mwangi', memberNumber:'SF-2024-000042',loanType:'Personal Loan',  principalAmount:50000, outstandingBalance:31500,monthlyInstalment:4424,nextPaymentDate:'30 Nov 2024',disbursementDate:'15 Jan 2024',status:'Active'},
+      {loanRef:'SF-LN-2024-007',memberName:'Jane Mwangi', memberNumber:'SF-2024-000042',loanType:'Emergency Loan', principalAmount:30000, outstandingBalance:7000, monthlyInstalment:3200,nextPaymentDate:'30 Nov 2024',disbursementDate:'01 Aug 2024',status:'Active'},
+      {loanRef:'SF-LN-2024-006',memberName:'Peter Kamau', memberNumber:'SF-2024-000041',loanType:'Personal Loan',  principalAmount:100000,outstandingBalance:58000,monthlyInstalment:8848,nextPaymentDate:'30 Nov 2024',disbursementDate:'15 Feb 2024',status:'Active'},
+      {loanRef:'SF-LN-2024-005',memberName:'James Mutua', memberNumber:'SF-2024-000039',loanType:'Biashara Loan',  principalAmount:80000, outstandingBalance:12000,monthlyInstalment:7200,nextPaymentDate:'01 Dec 2024',disbursementDate:'15 Mar 2024',status:'Active'},
+      {loanRef:'SF-LN-2024-003',memberName:'Tom Omondi',  memberNumber:'SF-2024-000035',loanType:'Personal Loan',  principalAmount:40000, outstandingBalance:38000,monthlyInstalment:3534,nextPaymentDate:'01 Oct 2024',disbursementDate:'15 Sep 2024',status:'Overdue'},
+      {loanRef:'SF-LN-2024-002',memberName:'Tom Omondi',  memberNumber:'SF-2024-000035',loanType:'Emergency Loan', principalAmount:20000, outstandingBalance:19500,monthlyInstalment:1771,nextPaymentDate:'01 Oct 2024',disbursementDate:'01 Sep 2024',status:'Overdue'},
+    ],
+    memberSavings: [
+      {memberNumber:'SF-2024-000042',name:'Jane Mwangi',  ordinary:28500,biashara:0,     elimu:8000, holiday:4000, investment:2000, lastDeposit:'15 Nov 2024',contributing:true},
+      {memberNumber:'SF-2024-000041',name:'Peter Kamau',  ordinary:60000,biashara:12000, elimu:0,    holiday:8000, investment:5000, lastDeposit:'14 Nov 2024',contributing:true},
+      {memberNumber:'SF-2024-000040',name:'Grace Otieno', ordinary:95000,biashara:0,     elimu:12000,holiday:8000, investment:5000, lastDeposit:'13 Nov 2024',contributing:true},
+      {memberNumber:'SF-2024-000039',name:'James Mutua',  ordinary:20000,biashara:5000,  elimu:3000, holiday:0,    investment:0,    lastDeposit:'01 Nov 2024',contributing:true},
+      {memberNumber:'SF-2024-000038',name:'Sarah Njoroge',ordinary:12000,biashara:0,     elimu:3000, holiday:0,    investment:0,    lastDeposit:'20 Oct 2024',contributing:false},
+      {memberNumber:'SF-2024-000037',name:'Joseph Kariuki',ordinary:45000,biashara:5000, elimu:0,    holiday:3000, investment:2000, lastDeposit:'15 Nov 2024',contributing:true},
+      {memberNumber:'SF-2024-000036',name:'Ann Waweru',   ordinary:150000,biashara:0,    elimu:0,    holiday:0,    investment:50000,lastDeposit:'15 Nov 2024',contributing:true},
+    ],
+    memberShares: [
+      {memberNumber:'SF-2024-000042',name:'Jane Mwangi',  shares:15, dividends:1800},
+      {memberNumber:'SF-2024-000041',name:'Peter Kamau',  shares:30, dividends:3600},
+      {memberNumber:'SF-2024-000040',name:'Grace Otieno', shares:50, dividends:6000},
+      {memberNumber:'SF-2024-000039',name:'James Mutua',  shares:10, dividends:1200},
+      {memberNumber:'SF-2024-000038',name:'Sarah Njoroge',shares:5,  dividends:600},
+      {memberNumber:'SF-2024-000037',name:'Joseph Kariuki',shares:20, dividends:2400},
+      {memberNumber:'SF-2024-000036',name:'Ann Waweru',   shares:80, dividends:9600},
+    ],
+    deposits: [
+      {memberName:'Jane Mwangi', memberNumber:'SF-2024-000042',amount:50000, rate:9,startDate:'15 Mar 2024',maturityDate:'15 Mar 2025',interestEarned:3375,status:'Active'},
+      {memberName:'Peter Kamau', memberNumber:'SF-2024-000041',amount:100000,rate:9,startDate:'01 Jun 2024',maturityDate:'01 Jun 2025',interestEarned:4500,status:'Active'},
+      {memberName:'Grace Otieno',memberNumber:'SF-2024-000040',amount:200000,rate:9,startDate:'15 Jan 2024',maturityDate:'15 Jan 2025',interestEarned:16500,status:'Maturing'},
+      {memberName:'Ann Waweru',  memberNumber:'SF-2024-000036',amount:500000,rate:9,startDate:'01 Apr 2023',maturityDate:'01 Apr 2024',interestEarned:45000,status:'Active'},
+    ],
+    transactions: [
+      {date:'15 Nov 2024',time:'09:32',ref:'TXN-20241115-001',memberName:'Jane Mwangi', memberNumber:'SF-2024-000042',description:'Monthly savings contribution',  type:'Credit',amount:1000, channel:'M-PESA',      postedBy:'System'},
+      {date:'14 Nov 2024',time:'10:15',ref:'TXN-20241114-001',memberName:'Peter Kamau', memberNumber:'SF-2024-000041',description:'Monthly savings contribution',  type:'Credit',amount:2000, channel:'M-PESA',      postedBy:'System'},
+      {date:'14 Nov 2024',time:'11:00',ref:'TXN-20241114-002',memberName:'Grace Otieno',memberNumber:'SF-2024-000040',description:'Fixed deposit',                 type:'Credit',amount:100000,channel:'Bank Transfer',postedBy:'admin@sf.com'},
+      {date:'01 Nov 2024',time:'08:10',ref:'TXN-20241101-001',memberName:'Jane Mwangi', memberNumber:'SF-2024-000042',description:'Loan repayment SF-LN-2024-009', type:'Debit', amount:4424, channel:'M-PESA',      postedBy:'System'},
+      {date:'01 Nov 2024',time:'08:25',ref:'TXN-20241101-002',memberName:'James Mutua', memberNumber:'SF-2024-000039',description:'Loan repayment SF-LN-2024-005', type:'Debit', amount:7200, channel:'M-PESA',      postedBy:'System'},
+      {date:'15 Oct 2024',time:'09:30',ref:'TXN-20241015-001',memberName:'Jane Mwangi', memberNumber:'SF-2024-000042',description:'Monthly savings contribution',  type:'Credit',amount:1000, channel:'M-PESA',      postedBy:'System'},
+      {date:'15 Oct 2024',time:'14:00',ref:'TXN-20241015-002',memberName:'Joseph Kariuki',memberNumber:'SF-2024-000037',description:'Share purchase — 5 shares',type:'Credit',amount:5000, channel:'Bank Transfer',postedBy:'admin@sf.com'},
+    ],
+    defaulters: [
+      {memberName:'Tom Omondi',  memberNumber:'SF-2024-000035',phone:'0711000111',loanRef:'SF-LN-2024-003',loanType:'Personal Loan', overdueAmount:7068, daysOverdue:75, lastPayment:'01 Sep 2024',outstandingBalance:38000},
+      {memberName:'Tom Omondi',  memberNumber:'SF-2024-000035',phone:'0711000111',loanRef:'SF-LN-2024-002',loanType:'Emergency Loan',overdueAmount:3542, daysOverdue:75, lastPayment:'01 Sep 2024',outstandingBalance:19500},
+    ],
+    auditLog: [
+      {timestamp:'2024-11-15 09:45:12',user:'admin@sf.com',action:'MEMBER_APPROVED',    details:'Approved member SF-2024-000041 — Peter Kamau',    memberNumber:'SF-2024-000041',ip:'196.201.45.12'},
+      {timestamp:'2024-11-14 15:20:08',user:'admin@sf.com',action:'LOAN_APPROVED',      details:'Approved loan SF-LN-2024-009 — Ksh 50,000',       memberNumber:'SF-2024-000042',ip:'196.201.45.12'},
+      {timestamp:'2024-11-14 11:30:00',user:'system',       action:'OTP_SENT',           details:'OTP sent to 0712****78 for registration',          memberNumber:'SF-2024-000042',ip:'41.90.64.33'},
+      {timestamp:'2024-11-13 09:15:22',user:'admin@sf.com',action:'SETTINGS_UPDATED',   details:'Loan interest rate updated to 1% per month',       memberNumber:'',              ip:'196.201.45.12'},
+      {timestamp:'2024-11-12 14:30:00',user:'system',       action:'ID_VERIFIED',        details:'National ID 12345678 verified via IPRS API',        memberNumber:'SF-2024-000042',ip:'41.90.64.33'},
+      {timestamp:'2024-11-01 08:00:00',user:'system',       action:'LOAN_REPAYMENT',     details:'Automatic loan repayment SF-LN-2024-009 — Ksh 4,424',memberNumber:'SF-2024-000042',ip:'System'},
+      {timestamp:'2024-10-30 11:00:00',user:'admin@sf.com',action:'MEMBER_SUSPENDED',   details:'Account suspended — Repeated loan default',         memberNumber:'SF-2024-000035',ip:'196.201.45.12'},
+      {timestamp:'2024-10-15 10:00:00',user:'admin@sf.com',action:'JOURNAL_ENTRY',       details:'Manual entry — Fixed deposit Ksh 100,000 for Grace Otieno',memberNumber:'SF-2024-000040',ip:'196.201.45.12'},
+    ],
+    journalEntries: [
+      {date:'14 Nov 2024',memberNumber:'SF-2024-000040',type:'Fixed Deposit',  amount:100000,postedBy:'admin@sf.com'},
+      {date:'15 Oct 2024',memberNumber:'SF-2024-000037',type:'Share Purchase', amount:5000,  postedBy:'admin@sf.com'},
+      {date:'20 Dec 2023',memberNumber:'SF-2024-000036',type:'Dividend Payment',amount:9600, postedBy:'admin@sf.com'},
+    ],
+  };
+}
+
+loadAll();
+</script>
+</body>
+</html>

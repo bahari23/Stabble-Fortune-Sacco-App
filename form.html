@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Member Details — Stable Fortunes SACCO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design tokens (matching existing site) ────────────────────────────── */
+    :root {
+      --green-deep:  #1a4731;
+      --green-mid:   #2d6a4f;
+      --green-light: #40916c;
+      --gold:        #c9a84c;
+      --gold-light:  #e8c97e;
+      --cream:       #faf8f3;
+      --white:       #ffffff;
+      --text-dark:   #0f2318;
+      --text-mid:    #3a5247;
+      --text-light:  #6b8c7a;
+      --border:      #d6e8de;
+      --red:         #c0392b;
+      --shadow:      0 4px 24px rgba(26,71,49,.12);
+      --shadow-lg:   0 12px 48px rgba(26,71,49,.18);
+      --radius:      12px;
+      --transition:  0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      line-height: 1.65;
+      font-size: 16px;
+      min-height: 100vh;
+    }
+
+    h1,h2,h3,h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
+    a { text-decoration: none; color: inherit; transition: var(--transition); }
+
+    /* ── Top bar ──────────────────────────────────────────────────────────── */
+    .top-bar {
+      background: var(--green-deep);
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,.25);
+    }
+    .top-bar-logo {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo-badge {
+      width: 38px; height: 38px; border-radius: 8px;
+      background: var(--gold); color: var(--green-deep);
+      font-family: 'Playfair Display', serif; font-weight: 900; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .top-bar-title {
+      font-family: 'Playfair Display', serif;
+      color: rgba(255,255,255,.9); font-size: 17px; font-weight: 600;
+    }
+    .top-bar-step {
+      font-size: 13px; color: rgba(255,255,255,.5);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 5px 14px; border-radius: 100px;
+    }
+
+    /* ── Progress stepper ─────────────────────────────────────────────────── */
+    .stepper-wrap {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+    }
+    .stepper {
+      max-width: 860px; margin: 0 auto;
+      display: flex; align-items: center;
+      padding: 20px 0;
+    }
+    .step {
+      display: flex; align-items: center; gap: 10px;
+      flex: 1;
+      position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: calc(22px + 10px);
+      top: 50%;
+      width: calc(100% - 52px);
+      height: 2px;
+      background: var(--border);
+      transform: translateY(-50%);
+    }
+    .step.done:not(:last-child)::after { background: var(--green-mid); }
+    .step-circle {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+      border: 2px solid var(--border);
+      background: var(--white); color: var(--text-light);
+      flex-shrink: 0; z-index: 1;
+      transition: var(--transition);
+    }
+    .step.done .step-circle {
+      background: var(--green-mid); border-color: var(--green-mid);
+      color: var(--white);
+    }
+    .step.active .step-circle {
+      background: var(--gold); border-color: var(--gold);
+      color: var(--green-deep);
+      box-shadow: 0 0 0 4px rgba(201,168,76,.2);
+    }
+    .step-label { line-height: 1.3; }
+    .step-label strong {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--text-dark);
+    }
+    .step.done .step-label strong, .step.active .step-label strong {
+      color: var(--green-deep);
+    }
+    .step-label span { font-size: 11px; color: var(--text-light); }
+
+    /* ── Page layout ──────────────────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 860px;
+      margin: 40px auto 80px;
+      padding: 0 24px;
+    }
+    .page-header { margin-bottom: 36px; }
+    .page-header .tag {
+      display: inline-block;
+      background: rgba(201,168,76,.15); color: var(--gold);
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; padding: 4px 14px;
+      border-radius: 100px; margin-bottom: 12px;
+    }
+    .page-header h2 {
+      font-size: clamp(24px,3.5vw,34px);
+      color: var(--green-deep); margin-bottom: 8px;
+    }
+    .page-header p { color: var(--text-light); font-size: 15px; max-width: 560px; }
+
+    /* ── Sections ─────────────────────────────────────────────────────────── */
+    .form-section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: fadeUp .4s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .form-section:nth-child(2) { animation-delay:.05s; }
+    .form-section:nth-child(3) { animation-delay:.10s; }
+    .form-section:nth-child(4) { animation-delay:.15s; }
+    .form-section:nth-child(5) { animation-delay:.20s; }
+    .form-section:nth-child(6) { animation-delay:.25s; }
+
+    .section-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .section-header h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 600; color: var(--white);
+      flex: 1;
+    }
+    .section-header span {
+      font-size: 12px; color: rgba(255,255,255,.55);
+    }
+    .section-chevron {
+      color: rgba(255,255,255,.6);
+      font-size: 18px;
+      transition: transform .3s ease;
+    }
+    .form-section.collapsed .section-chevron { transform: rotate(-90deg); }
+    .section-body {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .section-body.cols-1 { grid-template-columns: 1fr; }
+    .form-section.collapsed .section-body { display: none; }
+
+    /* ── Form controls ────────────────────────────────────────────────────── */
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-mid); letter-spacing: .01em;
+    }
+    .form-label .req { color: var(--red); margin-left: 2px; }
+
+    .form-control {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--cream);
+      color: var(--text-dark);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      transition: var(--transition);
+      outline: none;
+      appearance: none;
+    }
+    .form-control:focus {
+      border-color: var(--green-mid);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(45,106,79,.1);
+    }
+    .form-control.error { border-color: var(--red); }
+    .field-error { font-size: 12px; color: var(--red); margin-top: 2px; display: none; }
+    .form-control.error + .field-error { display: block; }
+
+    select.form-control { cursor: pointer; }
+    textarea.form-control { resize: vertical; min-height: 90px; }
+
+    .form-hint { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+    /* ── Upload zone ──────────────────────────────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--cream);
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--green-mid);
+      background: rgba(45,106,79,.04);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 28px; margin-bottom: 6px; }
+    .upload-zone p { font-size: 13px; color: var(--text-light); }
+    .upload-zone strong { color: var(--green-mid); font-size: 14px; }
+    .upload-preview {
+      display: none; margin-top: 10px;
+      font-size: 13px; color: var(--green-mid); font-weight: 600;
+    }
+
+    /* ── Declaration ──────────────────────────────────────────────────────── */
+    .declaration-box {
+      background: rgba(201,168,76,.06);
+      border: 1px solid rgba(201,168,76,.25);
+      border-radius: 8px;
+      padding: 18px;
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+    .checkbox-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-top: 14px;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px; height: 18px; margin-top: 2px;
+      accent-color: var(--green-mid); flex-shrink: 0; cursor: pointer;
+    }
+    .checkbox-row label { font-size: 13px; color: var(--text-mid); cursor: pointer; }
+
+    /* ── Submit bar ───────────────────────────────────────────────────────── */
+    .submit-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px;
+      box-shadow: var(--shadow);
+    }
+    .submit-note { font-size: 13px; color: var(--text-light); }
+    .submit-note strong { color: var(--text-dark); display: block; margin-bottom: 2px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 28px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 600;
+      cursor: pointer; border: none;
+      transition: var(--transition); white-space: nowrap;
+    }
+    .btn-green {
+      background: var(--green-mid); color: var(--white);
+    }
+    .btn-green:hover { background: var(--green-deep); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .btn-green:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .btn-outline-green {
+      background: transparent; color: var(--green-mid);
+      border: 1.5px solid var(--green-mid);
+    }
+    .btn-outline-green:hover { background: rgba(45,106,79,.06); }
+
+    /* ── Toast ────────────────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      padding: 14px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 500; color: var(--white);
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      transform: translateY(80px); opacity: 0;
+      transition: all .4s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 999; max-width: 340px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green-mid); }
+    .toast.error   { background: var(--red); }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .section-body { grid-template-columns: 1fr; }
+      .stepper .step-label { display: none; }
+      .top-bar { padding: 12px 16px; }
+      .page-wrap { padding: 0 16px; margin-top: 24px; }
+      .submit-bar { flex-direction: column; align-items: stretch; }
+      .submit-bar .btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top bar ──────────────────────────────────────────────────────────────── -->
+<div class="top-bar">
+  <div class="top-bar-logo">
+    <div class="logo-badge">SF</div>
+    <span class="top-bar-title">Stable Fortunes SACCO</span>
+  </div>
+  <div class="top-bar-step">Step 2 of 2 — Member Details</div>
+</div>
+
+<!-- ── Progress stepper ─────────────────────────────────────────────────────── -->
+<div class="stepper-wrap">
+  <div class="stepper">
+    <div class="step done">
+      <div class="step-circle">✓</div>
+      <div class="step-label">
+        <strong>Account Created</strong>
+        <span>Verified &amp; activated</span>
+      </div>
+    </div>
+    <div class="step active">
+      <div class="step-circle">2</div>
+      <div class="step-label">
+        <strong>Confidential Details</strong>
+        <span>KYC &amp; personal info</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-circle">3</div>
+      <div class="step-label">
+        <strong>Under Review</strong>
+        <span>Approval within 48hrs</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main form ─────────────────────────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="tag">Confidential</div>
+    <h2>Complete Your Member Profile</h2>
+    <p>This information is kept strictly confidential and used only for account management and regulatory compliance (KYC/AML).</p>
+  </div>
+
+  <form id="memberForm" novalidate>
+
+    <!-- ── 1. Personal Information ─────────────────────────────────────────── -->
+    <div class="form-section" id="sec-personal">
+      <div class="section-header" onclick="toggleSection('sec-personal')">
+        <div class="section-icon">👤</div>
+        <h3>Personal Information</h3>
+        <span>Required</span>
+        <div class="section-chevron">›</div>
+      </div>
+      <div class="section-body">
+        <div class="form-group">
+          <label class="form-label">Date of Birth <span class="req">*</span></label>
+          <input type="date" class="form-control" id="dob" name="dob" required
+                 max="" placeholder="DD/MM/YYYY">
+          <span class="field-error">Date of birth is required. Must be 18+.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender <span class="req">*</span></label>
+          <select class="form-control" id="gender" name="gender" required>
+            <option value="">Select…</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+            <option>Prefer not to say</option>
+          </select>
+          <span class="field-error">Please select your gender.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Marital Status <span class="req">*</span></label>
+          <select class="form-control" id="marital" name="marital" required>
+            <option value="">Select…</option>
+            <option>Single</option>
+            <option>Married</option>
+            <option>Divorced</option>
+            <option>Widowed</option>
+          </select>
+          <span class="field-error">Please select your marital status.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">KRA PIN <span class="req">*</span></label>
+          <input type="text" class="form-control" id="kraPin" name="kraPin"
+                 placeholder="e.g. A001234567B" maxlength="11" required
+                 style="text-transform:uppercase">
+          <span class="field-error">Enter a valid KRA PIN (e.g. A001234567B).</span>
+          <span class="form-hint">11-character Kenya Revenue Authority PIN</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. Employment & Income ──────────────────────────────────────────── -->
+    <div class="form-section" id="sec-employment">
+      <div class="section-header" onclick="toggleSection('sec-employment')">
+        <div class="section-icon">💼</div>
+        <h3>Employment &amp; Income</h3>
+        <span>Required</span>
+        <div class="section-chevron">›</div>
+      </div>
+      <div class="section-body">
+        <div class="form-group">
+          <label class="form-label">Occupation <span class="req">*</span></label>
+          <input type="text" class="form-control" id="occupation" name="occupation"
+                 placeholder="e.g. Teacher, Entrepreneur, Engineer" required>
+          <span class="field-error">Occupation is required.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Employer / Business Name</label>
+          <input type="text" class="form-control" id="employer" name="employer"
+                 placeholder="Name of employer or your business">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monthly Income (KES) <span class="req">*</span></label>
+          <select class="form-control" id="income" name="income" required>
+            <option value="">Select range…</option>
+            <option value="0-30000">Below KES 30,000</option>
+            <option value="30000-60000">KES 30,000 – 60,000</option>
+            <option value="60000-100000">KES 60,000 – 100,000</option>
+            <option value="100000-200000">KES 100,000 – 200,000</option>
+            <option value="200000+">Above KES 200,000</option>
+          </select>
+          <span class="field-error">Please select an income range.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Source of Funds <span class="req">*</span></label>
+          <select class="form-control" id="fundsSource" name="fundsSource" required>
+            <option value="">Select…</option>
+            <option>Salary / Employment</option>
+            <option>Business Income</option>
+            <option>Investments / Dividends</option>
+            <option>Rental Income</option>
+            <option>Pension / Retirement</option>
+            <option>Other</option>
+          </select>
+          <span class="field-error">Source of funds is required.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. Physical Address ─────────────────────────────────────────────── -->
+    <div class="form-section" id="sec-address">
+      <div class="section-header" onclick="toggleSection('sec-address')">
+        <div class="section-icon">📍</div>
+        <h3>Physical Address</h3>
+        <span>Required</span>
+        <div class="section-chevron">›</div>
+      </div>
+      <div class="section-body">
+        <div class="form-group">
+          <label class="form-label">County <span class="req">*</span></label>
+          <select class="form-control" id="county" name="county" required>
+            <option value="">Select county…</option>
+            <option>Baringo</option><option>Bomet</option><option>Bungoma</option>
+            <option>Busia</option><option>Elgeyo-Marakwet</option><option>Embu</option>
+            <option>Garissa</option><option>Homa Bay</option><option>Isiolo</option>
+            <option>Kajiado</option><option>Kakamega</option><option>Kericho</option>
+            <option>Kiambu</option><option>Kilifi</option><option>Kirinyaga</option>
+            <option>Kisii</option><option>Kisumu</option><option>Kitui</option>
+            <option>Kwale</option><option>Laikipia</option><option>Lamu</option>
+            <option>Machakos</option><option>Makueni</option><option>Mandera</option>
+            <option>Marsabit</option><option>Meru</option><option>Migori</option>
+            <option>Mombasa</option><option>Muranga</option><option>Nairobi</option>
+            <option>Nakuru</option><option>Nandi</option><option>Narok</option>
+            <option>Nyamira</option><option>Nyandarua</option><option>Nyeri</option>
+            <option>Samburu</option><option>Siaya</option><option>Taita-Taveta</option>
+            <option>Tana River</option><option>Tharaka-Nithi</option>
+            <option>Trans Nzoia</option><option>Turkana</option>
+            <option>Uasin Gishu</option><option>Vihiga</option><option>Wajir</option>
+            <option>West Pokot</option>
+          </select>
+          <span class="field-error">Please select your county.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sub-County / Town <span class="req">*</span></label>
+          <input type="text" class="form-control" id="subCounty" name="subCounty"
+                 placeholder="e.g. Westlands, Kilimani" required>
+          <span class="field-error">Sub-county / town is required.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">P.O. Box / Postal Address</label>
+          <input type="text" class="form-control" id="postal" name="postal"
+                 placeholder="e.g. P.O. Box 12345">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Postal Code</label>
+          <input type="text" class="form-control" id="postalCode" name="postalCode"
+                 placeholder="e.g. 00100" maxlength="10">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. Next of Kin ──────────────────────────────────────────────────── -->
+    <div class="form-section" id="sec-nok">
+      <div class="section-header" onclick="toggleSection('sec-nok')">
+        <div class="section-icon">👨‍👩‍👧</div>
+        <h3>Next of Kin</h3>
+        <span>Required</span>
+        <div class="section-chevron">›</div>
+      </div>
+      <div class="section-body">
+        <div class="form-group">
+          <label class="form-label">Full Name <span class="req">*</span></label>
+          <input type="text" class="form-control" id="nokName" name="nokName"
+                 placeholder="Next of kin's full legal name" required>
+          <span class="field-error">Next of kin name is required.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relationship <span class="req">*</span></label>
+          <select class="form-control" id="nokRel" name="nokRel" required>
+            <option value="">Select…</option>
+            <option>Spouse</option><option>Parent</option><option>Child</option>
+            <option>Sibling</option><option>Guardian</option><option>Other</option>
+          </select>
+          <span class="field-error">Relationship is required.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number <span class="req">*</span></label>
+          <input type="tel" class="form-control" id="nokPhone" name="nokPhone"
+                 placeholder="e.g. 0712 345 678" required>
+          <span class="field-error">Valid phone number is required.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">National ID Number</label>
+          <input type="text" class="form-control" id="nokId" name="nokId"
+                 placeholder="7–9 digit National ID" maxlength="9">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 5. Referee ──────────────────────────────────────────────────────── -->
+    <div class="form-section" id="sec-referee">
+      <div class="section-header" onclick="toggleSection('sec-referee')">
+        <div class="section-icon">🤝</div>
+        <h3>Referee (Existing Member)</h3>
+        <span>Optional</span>
+        <div class="section-chevron">›</div>
+      </div>
+      <div class="section-body">
+        <div class="form-group">
+          <label class="form-label">Member Number</label>
+          <input type="text" class="form-control" id="refNo" name="refNo"
+                 placeholder="e.g. SF2024000012">
+          <span class="form-hint">Ask your referee for their Stable Fortunes member number.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Referee Full Name</label>
+          <input type="text" class="form-control" id="refName" name="refName"
+                 placeholder="Full name of referee">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 6. Document Uploads ─────────────────────────────────────────────── -->
+    <div class="form-section" id="sec-docs">
+      <div class="section-header" onclick="toggleSection('sec-docs')">
+        <div class="section-icon">📄</div>
+        <h3>Identity Documents</h3>
+        <span>Required</span>
+        <div class="section-chevron">›</div>
+      </div>
+      <div class="section-body">
+
+        <div class="form-group">
+          <label class="form-label">National ID — Front <span class="req">*</span></label>
+          <div class="upload-zone" id="zone-idfront"
+               ondragover="dragOver(event,'zone-idfront')"
+               ondragleave="dragLeave('zone-idfront')"
+               ondrop="dropFile(event,'zone-idfront','idFront')">
+            <input type="file" id="idFront" name="idFront" accept="image/*,.pdf"
+                   onchange="previewFile(this,'zone-idfront')">
+            <div class="upload-icon">🪪</div>
+            <strong>Click or drag to upload</strong>
+            <p>JPG, PNG or PDF · Max 5 MB</p>
+            <div class="upload-preview" id="prev-idfront"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">National ID — Back <span class="req">*</span></label>
+          <div class="upload-zone" id="zone-idback"
+               ondragover="dragOver(event,'zone-idback')"
+               ondragleave="dragLeave('zone-idback')"
+               ondrop="dropFile(event,'zone-idback','idBack')">
+            <input type="file" id="idBack" name="idBack" accept="image/*,.pdf"
+                   onchange="previewFile(this,'zone-idback')">
+            <div class="upload-icon">🔲</div>
+            <strong>Click or drag to upload</strong>
+            <p>JPG, PNG or PDF · Max 5 MB</p>
+            <div class="upload-preview" id="prev-idback"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Passport Photo <span class="req">*</span></label>
+          <div class="upload-zone" id="zone-photo"
+               ondragover="dragOver(event,'zone-photo')"
+               ondragleave="dragLeave('zone-photo')"
+               ondrop="dropFile(event,'zone-photo','passportPhoto')">
+            <input type="file" id="passportPhoto" name="passportPhoto"
+                   accept="image/*" onchange="previewFile(this,'zone-photo')">
+            <div class="upload-icon">🤳</div>
+            <strong>Click or drag to upload</strong>
+            <p>Clear front-facing photo · JPG or PNG · Max 2 MB</p>
+            <div class="upload-preview" id="prev-photo"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">KRA Certificate (optional)</label>
+          <div class="upload-zone" id="zone-kra"
+               ondragover="dragOver(event,'zone-kra')"
+               ondragleave="dragLeave('zone-kra')"
+               ondrop="dropFile(event,'zone-kra','kraCert')">
+            <input type="file" id="kraCert" name="kraCert" accept="image/*,.pdf"
+                   onchange="previewFile(this,'zone-kra')">
+            <div class="upload-icon">📑</div>
+            <strong>Click or drag to upload</strong>
+            <p>PDF or image · Max 5 MB</p>
+            <div class="upload-preview" id="prev-kra"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Declaration ─────────────────────────────────────────────────────── -->
+    <div class="form-section" id="sec-declaration">
+      <div class="section-header" onclick="toggleSection('sec-declaration')">
+        <div class="section-icon">✍️</div>
+        <h3>Declaration &amp; Consent</h3>
+        <span>Required</span>
+        <div class="section-chevron">›</div>
+      </div>
+      <div class="section-body cols-1">
+        <div>
+          <div class="declaration-box">
+            I, the undersigned, hereby declare that the information provided in this form is
+            true, accurate and complete to the best of my knowledge. I authorise
+            <strong>Stable Fortunes SACCO</strong> to verify all information provided,
+            including but not limited to identity verification with the relevant government
+            bodies, credit reference bureaus, and other regulatory agencies as required by
+            the Kenyan SACCO Societies Act and Anti-Money Laundering (AML) regulations.
+            <br><br>
+            I understand that providing false information constitutes grounds for immediate
+            cancellation of membership and may result in legal action.
+          </div>
+
+          <div class="checkbox-row">
+            <input type="checkbox" id="declareAccurate" required>
+            <label for="declareAccurate">
+              I confirm that all information I have provided is accurate and complete. <span class="req">*</span>
+            </label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="declarePrivacy" required>
+            <label for="declarePrivacy">
+              I have read and agree to the
+              <a href="#" style="color:var(--green-mid);font-weight:600">Privacy Policy</a>
+              and consent to my data being processed for membership purposes. <span class="req">*</span>
+            </label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="declareSms">
+            <label for="declareSms">
+              I consent to receiving SMS and email communications from Stable Fortunes SACCO.
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Submit bar ──────────────────────────────────────────────────────── -->
+    <div class="submit-bar">
+      <div class="submit-note">
+        <strong>Almost done!</strong>
+        Your application will be reviewed within 48 hours. You'll receive an SMS and email notification.
+      </div>
+      <div style="display:flex;gap:12px;flex-shrink:0">
+        <button type="button" class="btn btn-outline-green" onclick="saveDraft()">
+          💾 Save Draft
+        </button>
+        <button type="submit" class="btn btn-green" id="submitBtn">
+          Submit Application
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<!-- ── Toast ────────────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Section toggle ─────────────────────────────────────────────────────────────
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ── Upload helpers ─────────────────────────────────────────────────────────────
+function previewFile(input, zoneId) {
+  const file = input.files[0];
+  if (!file) return;
+  const prev = document.getElementById('prev-' + zoneId.replace('zone-', ''));
+  if (prev) {
+    prev.textContent = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+    prev.style.display = 'block';
+  }
+}
+function dragOver(e, zoneId) {
+  e.preventDefault();
+  document.getElementById(zoneId).classList.add('drag-over');
+}
+function dragLeave(zoneId) {
+  document.getElementById(zoneId).classList.remove('drag-over');
+}
+function dropFile(e, zoneId, inputId) {
+  e.preventDefault();
+  dragLeave(zoneId);
+  const input = document.getElementById(inputId);
+  input.files = e.dataTransfer.files;
+  previewFile(input, zoneId);
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ── Save draft ─────────────────────────────────────────────────────────────────
+function saveDraft() {
+  const data = {};
+  document.querySelectorAll('#memberForm [name]').forEach(el => {
+    if (el.type !== 'file' && el.type !== 'checkbox')
+      data[el.name] = el.value;
+    else if (el.type === 'checkbox')
+      data[el.name] = el.checked;
+  });
+  sessionStorage.setItem('sf_form_draft', JSON.stringify(data));
+  showToast('Draft saved! You can continue later from this device.', 'success');
+}
+
+// ── Restore draft ──────────────────────────────────────────────────────────────
+(function restoreDraft() {
+  const raw = sessionStorage.getItem('sf_form_draft');
+  if (!raw) return;
+  const data = JSON.parse(raw);
+  Object.entries(data).forEach(([name, val]) => {
+    const el = document.querySelector('[name="' + name + '"]');
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = val;
+    else el.value = val;
+  });
+})();
+
+// ── Restrict DOB max to 18 years ago ──────────────────────────────────────────
+(function setMaxDob() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 18);
+  document.getElementById('dob').max = d.toISOString().split('T')[0];
+})();
+
+// ── KRA PIN auto-uppercase ─────────────────────────────────────────────────────
+document.getElementById('kraPin').addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+});
+
+// ── Validation helpers ─────────────────────────────────────────────────────────
+function validateField(el) {
+  const isRequired = el.hasAttribute('required');
+  let valid = true;
+
+  if (isRequired && !el.value.trim()) valid = false;
+
+  // KRA PIN: 11 chars starting with letter
+  if (el.id === 'kraPin') {
+    valid = /^[A-Z]\d{9}[A-Z]$/.test(el.value.trim());
+  }
+
+  // Age check
+  if (el.id === 'dob' && el.value) {
+    const age = (Date.now() - new Date(el.value)) / (1000 * 60 * 60 * 24 * 365.25);
+    if (age < 18) valid = false;
+  }
+
+  el.classList.toggle('error', !valid);
+  return valid;
+}
+
+document.querySelectorAll('#memberForm .form-control').forEach(el => {
+  el.addEventListener('blur', () => validateField(el));
+  el.addEventListener('input', () => {
+    if (el.classList.contains('error')) validateField(el);
+  });
+});
+
+// ── Form submit ────────────────────────────────────────────────────────────────
+document.getElementById('memberForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  // Validate all required fields
+  let allValid = true;
+  document.querySelectorAll('#memberForm .form-control[required]').forEach(el => {
+    if (!validateField(el)) allValid = false;
+  });
+
+  // Validate required file uploads
+  const requiredFiles = ['idFront', 'idBack', 'passportPhoto'];
+  requiredFiles.forEach(id => {
+    const input = document.getElementById(id);
+    if (!input.files.length) {
+      input.closest('.upload-zone').style.borderColor = 'var(--red)';
+      allValid = false;
+    }
+  });
+
+  // Checkboxes
+  if (!document.getElementById('declareAccurate').checked ||
+      !document.getElementById('declarePrivacy').checked) {
+    showToast('Please accept both declaration checkboxes.', 'error');
+    allValid = false;
+  }
+
+  if (!allValid) {
+    // Expand any collapsed sections that have errors
+    document.querySelectorAll('.form-control.error').forEach(el => {
+      const section = el.closest('.form-section');
+      if (section) section.classList.remove('collapsed');
+    });
+    showToast('Please fill in all required fields.', 'error');
+    // Scroll to first error
+    const firstError = document.querySelector('.form-control.error');
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // ── Submit via FormData (multipart for file uploads) ──────────────────────
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="opacity:.7">Submitting…</span>';
+
+  const formData = new FormData(this);
+
+  try {
+    const response = await fetch('/member/details', {
+      method: 'POST',
+      body: formData   // FormData sets multipart/form-data automatically
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      sessionStorage.removeItem('sf_form_draft');
+      showToast('✅ Application submitted! Redirecting…', 'success');
+      setTimeout(() => {
+        window.location.href = result.redirect || 'index.html';
+      }, 2200);
+    } else {
+      showToast('❌ ' + result.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = 'Submit Application <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    }
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = 'Submit Application <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  }
+});
+</script>
+
+</body>
+</html>
